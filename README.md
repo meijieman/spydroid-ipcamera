@@ -2,6 +2,11 @@
 copy from *https://github.com/fyhertz/spydroid-ipcamera*
 
 
+在一个手机安装该 app，在另外一个手机安装 vlc android，可以接收到视频，但效果不好
+在网页端目前还不能
+
+
+
 ## 相关资料
 * 局域网无纸化会议封装
 https://www.jianshu.com/p/51df3a6c9f28
