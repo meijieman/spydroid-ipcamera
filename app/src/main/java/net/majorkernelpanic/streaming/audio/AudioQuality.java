@@ -37,6 +37,7 @@ public class AudioQuality {
      */
     public AudioQuality() {
     }
+
     /**
      * Represents a quality for an audio stream.
      *
@@ -47,6 +48,7 @@ public class AudioQuality {
         this.samplingRate = samplingRate;
         this.bitRate = bitRate;
     }
+
     public static AudioQuality parseQuality(String str) {
         AudioQuality quality = DEFAULT_AUDIO_QUALITY.clone();
         if (str != null) {
@@ -59,11 +61,15 @@ public class AudioQuality {
         }
         return quality;
     }
+
     public boolean equals(AudioQuality quality) {
-        if (quality == null) return false;
+        if (quality == null) {
+            return false;
+        }
         return (quality.samplingRate == this.samplingRate &
                 quality.bitRate == this.bitRate);
     }
+
     public AudioQuality clone() {
         return new AudioQuality(samplingRate, bitRate);
     }

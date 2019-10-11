@@ -134,7 +134,9 @@ public class ModAssetServer implements HttpRequestHandler {
                 ByteArrayOutputStream buffer = new ByteArrayOutputStream(64000);
                 byte[] tmp = new byte[4096];
                 int length = 0;
-                while ((length = stream.read(tmp)) != -1) buffer.write(tmp, 0, length);
+                while ((length = stream.read(tmp)) != -1) {
+                    buffer.write(tmp, 0, length);
+                }
                 body = new InputStreamEntity(new ByteArrayInputStream(buffer.toByteArray()), buffer.size());
                 stream.close();
                 Log.d(TAG, "Serving compressed file " + "www" + url);
@@ -167,8 +169,9 @@ public class ModAssetServer implements HttpRequestHandler {
     private String getMimeMediaType(String fileName) {
         String extension = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
         for (int i = 0; i < mimeMediaTypes.length; i += 2) {
-            if (mimeMediaTypes[i].equals(extension))
+            if (mimeMediaTypes[i].equals(extension)) {
                 return mimeMediaTypes[i + 1];
+            }
         }
         return mimeMediaTypes[0];
     }

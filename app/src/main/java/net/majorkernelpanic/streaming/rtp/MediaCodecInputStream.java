@@ -52,6 +52,14 @@ public class MediaCodecInputStream extends InputStream {
         mBuffers = mMediaCodec.getOutputBuffers();
     }
 
+    public int available() {
+        if (mBuffer != null) {
+            return mBufferInfo.size - mBuffer.position();
+        } else {
+            return 0;
+        }
+    }
+
     @Override
     public void close() {
         mClosed = true;
@@ -88,7 +96,9 @@ public class MediaCodecInputStream extends InputStream {
                     }
                 }
             }
-            if (mClosed) throw new IOException("This InputStream was closed");
+            if (mClosed) {
+                throw new IOException("This InputStream was closed");
+            }
             min = length < mBufferInfo.size - mBuffer.position() ? length : mBufferInfo.size - mBuffer.position();
             mBuffer.get(buffer, offset, min);
             if (mBuffer.position() >= mBufferInfo.size) {
@@ -100,13 +110,6 @@ public class MediaCodecInputStream extends InputStream {
             e.printStackTrace();
         }
         return min;
-    }
-
-    public int available() {
-        if (mBuffer != null)
-            return mBufferInfo.size - mBuffer.position();
-        else
-            return 0;
     }
 
     public BufferInfo getLastBufferInfo() {

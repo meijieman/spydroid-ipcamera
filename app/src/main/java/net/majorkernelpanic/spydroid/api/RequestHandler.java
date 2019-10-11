@@ -78,7 +78,9 @@ public class RequestHandler {
                     JSONObject object = (JSONObject) array.get(i);
                     response.append("\"" + object.getString("action") + "\":");
                     exec(object, response);
-                    if (i != array.length() - 1) response.append(",");
+                    if (i != array.length() - 1) {
+                        response.append(",");
+                    }
                 }
                 // Only One request
             } else if (token instanceof JSONObject) {
@@ -182,8 +184,9 @@ public class RequestHandler {
                 // Useful to display additional information to the user depending on the error
                 StackTraceElement[] stack = exception.getStackTrace();
                 StringBuilder builder = new StringBuilder(exception.getClass().getName() + " : " + lastError + "||");
-                for (int i = 0; i < stack.length; i++)
+                for (int i = 0; i < stack.length; i++) {
                     builder.append("at " + stack[i].getClassName() + "." + stack[i].getMethodName() + " (" + stack[i].getFileName() + ":" + stack[i].getLineNumber() + ")||");
+                }
                 response.append("\"lastError\":\"" + (lastError != null ? lastError : "unknown error") + "\",");
                 response.append("\"lastStackTrace\":\"" + builder.toString() + "\",");
 

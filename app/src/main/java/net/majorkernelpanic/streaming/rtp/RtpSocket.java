@@ -122,12 +122,14 @@ public class RtpSocket implements Runnable {
     public void close() {
         mSocket.close();
     }
+
     /**
      * Returns the SSRC of the stream.
      */
     public int getSSRC() {
         return mSsrc;
     }
+
     /**
      * Sets the SSRC of the stream.
      */
@@ -138,6 +140,7 @@ public class RtpSocket implements Runnable {
         }
         mReport.setSSRC(mSsrc);
     }
+
     /**
      * Sets the clock frquency of the stream in Hz.
      */
@@ -203,7 +206,9 @@ public class RtpSocket implements Runnable {
             mThread = new Thread(this);
             mThread.start();
         }
-        if (++mBufferIn >= mBufferCount) mBufferIn = 0;
+        if (++mBufferIn >= mBufferCount) {
+            mBufferIn = 0;
+        }
         mBufferCommitted.release();
 
     }
@@ -215,7 +220,9 @@ public class RtpSocket implements Runnable {
         updateSequence();
         mPackets[mBufferIn].setLength(length);
         mAverageBitrate.push(length);
-        if (++mBufferIn >= mBufferCount) mBufferIn = 0;
+        if (++mBufferIn >= mBufferCount) {
+            mBufferIn = 0;
+        }
         mBufferCommitted.release();
         if (mThread == null) {
             mThread = new Thread(this);
@@ -274,7 +281,9 @@ public class RtpSocket implements Runnable {
                         long d = stats.average() / 1000000;
                         //Log.d(TAG,"delay: "+d+" d: "+(mTimestamps[mBufferOut]-mOldTimestamp)/1000000);
                         // We ensure that packets are sent at a constant and suitable rate no matter how the RtpSocket is used.
-                        if (mCacheSize > 0) Thread.sleep(d);
+                        if (mCacheSize > 0) {
+                            Thread.sleep(d);
+                        }
                     } else if ((mTimestamps[mBufferOut] - mOldTimestamp) < 0) {
                         Log.e(TAG, "TS: " + mTimestamps[mBufferOut] + " OLD: " + mOldTimestamp);
                     }
@@ -286,8 +295,12 @@ public class RtpSocket implements Runnable {
                 }
                 mReport.update(mPackets[mBufferOut].getLength(), System.nanoTime(), (mTimestamps[mBufferOut] / 100L) * (mClock / 1000L) / 10000L);
                 mOldTimestamp = mTimestamps[mBufferOut];
-                if (mCount++ > 30) mSocket.send(mPackets[mBufferOut]);
-                if (++mBufferOut >= mBufferCount) mBufferOut = 0;
+                if (mCount++ > 30) {
+                    mSocket.send(mPackets[mBufferOut]);
+                }
+                if (++mBufferOut >= mBufferCount) {
+                    mBufferOut = 0;
+                }
                 mBufferRequested.release();
             }
         } catch (Exception e) {
@@ -348,7 +361,9 @@ public class RtpSocket implements Runnable {
                     mElapsed[mIndex] = mDelta;
                     mDelta = 0;
                     mIndex++;
-                    if (mIndex >= mSize) mIndex = 0;
+                    if (mIndex >= mSize) {
+                        mIndex = 0;
+                    }
                 }
             }
             mOldNow = mNow;
@@ -407,7 +422,9 @@ public class RtpSocket implements Runnable {
                 m = value;
             } else {
                 m = (m * q + value) / (q + 1);
-                if (q < count) q++;
+                if (q < count) {
+                    q++;
+                }
             }
         }
 

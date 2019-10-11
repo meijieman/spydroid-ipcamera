@@ -130,12 +130,12 @@ public class SurfaceView extends android.view.SurfaceView implements Runnable, O
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width,
-                               int height) {
+    public void surfaceCreated(SurfaceHolder holder) {
     }
 
     @Override
-    public void surfaceCreated(SurfaceHolder holder) {
+    public void surfaceChanged(SurfaceHolder holder, int format, int width,
+                               int height) {
     }
 
     @Override

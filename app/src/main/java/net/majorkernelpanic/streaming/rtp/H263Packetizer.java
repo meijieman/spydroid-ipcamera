@@ -74,13 +74,17 @@ public class H263Packetizer extends AbstractPacketizer implements Runnable {
         stats.reset();
         try {
             while (!Thread.interrupted()) {
-                if (j == 0) buffer = socket.requestBuffer();
+                if (j == 0) {
+                    buffer = socket.requestBuffer();
+                }
                 socket.updateTimestamp(ts);
                 // Each packet we send has a two byte long header (See section 5.1 of RFC 4629)
                 buffer[rtphl] = 0;
                 buffer[rtphl + 1] = 0;
                 time = System.nanoTime();
-                if (fill(rtphl + j + 2, MAXPACKETSIZE - rtphl - j - 2) < 0) return;
+                if (fill(rtphl + j + 2, MAXPACKETSIZE - rtphl - j - 2) < 0) {
+                    return;
+                }
                 duration += System.nanoTime() - time;
                 j = 0;
                 // Each h263 frame starts with: 0000 0000 0000 0000 1000 00??
@@ -134,7 +138,9 @@ public class H263Packetizer extends AbstractPacketizer implements Runnable {
             len = is.read(buffer, offset + sum, length - sum);
             if (len < 0) {
                 throw new IOException("End of stream");
-            } else sum += len;
+            } else {
+                sum += len;
+            }
         }
         return sum;
 

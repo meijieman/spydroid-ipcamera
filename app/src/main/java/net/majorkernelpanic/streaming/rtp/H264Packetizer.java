@@ -141,7 +141,9 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
             fill(header, 0, 5);
             ts += delay;
             naluLength = header[3] & 0xFF | (header[2] & 0xFF) << 8 | (header[1] & 0xFF) << 16 | (header[0] & 0xFF) << 24;
-            if (naluLength > 100000 || naluLength < 0) resync();
+            if (naluLength > 100000 || naluLength < 0) {
+                resync();
+            }
         } else if (streamType == 1) {
             // NAL units are preceeded with 0x00000001
             fill(header, 0, 5);
@@ -198,8 +200,9 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
                 buffer[rtphl] = header[0];
                 buffer[rtphl + 1] = header[1];
                 socket.updateTimestamp(ts);
-                if ((len = fill(buffer, rtphl + 2, naluLength - sum > MAXPACKETSIZE - rtphl - 2 ? MAXPACKETSIZE - rtphl - 2 : naluLength - sum)) < 0)
+                if ((len = fill(buffer, rtphl + 2, naluLength - sum > MAXPACKETSIZE - rtphl - 2 ? MAXPACKETSIZE - rtphl - 2 : naluLength - sum)) < 0) {
                     return;
+                }
                 sum += len;
                 // Last packet before next NAL
                 if (sum >= naluLength) {
@@ -221,7 +224,9 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
             len = is.read(buffer, offset + sum, length - sum);
             if (len < 0) {
                 throw new IOException("End of stream");
-            } else sum += len;
+            } else {
+                sum += len;
+            }
         }
         return sum;
     }

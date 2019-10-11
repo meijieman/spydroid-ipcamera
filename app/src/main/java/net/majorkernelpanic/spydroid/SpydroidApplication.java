@@ -45,7 +45,9 @@ import static org.acra.ReportField.STACK_TRACE;
 import static org.acra.ReportField.USER_APP_START_DATE;
 import static org.acra.ReportField.USER_CRASH_DATE;
 
-@ReportsCrashes(formKey = "dGhWbUlacEV6X0hlS2xqcmhyYzNrWlE6MQ", customReportContent = {APP_VERSION_NAME, PHONE_MODEL, BRAND, PRODUCT, ANDROID_VERSION, STACK_TRACE, USER_APP_START_DATE, USER_CRASH_DATE, LOGCAT, DEVICE_FEATURES, SHARED_PREFERENCES})
+@ReportsCrashes(formKey = "dGhWbUlacEV6X0hlS2xqcmhyYzNrWlE6MQ",
+        customReportContent = {APP_VERSION_NAME, PHONE_MODEL, BRAND, PRODUCT, ANDROID_VERSION, STACK_TRACE,
+                USER_APP_START_DATE, USER_CRASH_DATE, LOGCAT, DEVICE_FEATURES, SHARED_PREFERENCES})
 public class SpydroidApplication extends android.app.Application {
 
     public final static String TAG = "SpydroidApplication";
@@ -92,13 +94,15 @@ public class SpydroidApplication extends android.app.Application {
             } else if (key.equals("audio_encoder") || key.equals("stream_audio")) {
                 audioEncoder = Integer.parseInt(sharedPreferences.getString("audio_encoder", String.valueOf(audioEncoder)));
                 SessionBuilder.getInstance().setAudioEncoder(audioEncoder);
-                if (!sharedPreferences.getBoolean("stream_audio", false))
+                if (!sharedPreferences.getBoolean("stream_audio", false)) {
                     SessionBuilder.getInstance().setAudioEncoder(0);
+                }
             } else if (key.equals("stream_video") || key.equals("video_encoder")) {
                 videoEncoder = Integer.parseInt(sharedPreferences.getString("video_encoder", String.valueOf(videoEncoder)));
                 SessionBuilder.getInstance().setVideoEncoder(videoEncoder);
-                if (!sharedPreferences.getBoolean("stream_video", true))
+                if (!sharedPreferences.getBoolean("stream_video", true)) {
                     SessionBuilder.getInstance().setVideoEncoder(0);
+                }
             } else if (key.equals("notification_enabled")) {
                 notificationEnabled = sharedPreferences.getBoolean("notification_enabled", true);
             }
@@ -111,9 +115,11 @@ public class SpydroidApplication extends android.app.Application {
             batteryLevel = intent.getIntExtra("level", 0);
         }
     };
+
     public static SpydroidApplication getInstance() {
         return sApplication;
     }
+
     @Override
     public void onCreate() {
         // The following line triggers the initialization of ACRA

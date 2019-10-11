@@ -43,11 +43,13 @@ public class VideoQuality {
     public int bitrate = 0;
     public int resX = 0;
     public int resY = 0;
+
     /**
      * Represents a quality for a video stream.
      */
     public VideoQuality() {
     }
+
     /**
      * Represents a quality for a video stream.
      *
@@ -58,6 +60,7 @@ public class VideoQuality {
         this.resX = resX;
         this.resY = resY;
     }
+
     /**
      * Represents a quality for a video stream.
      *
@@ -72,6 +75,7 @@ public class VideoQuality {
         this.resX = resX;
         this.resY = resY;
     }
+
     public static VideoQuality parseQuality(String str) {
         VideoQuality quality = DEFAULT_VIDEO_QUALITY.clone();
         if (str != null) {
@@ -86,6 +90,7 @@ public class VideoQuality {
         }
         return quality;
     }
+
     /**
      * Checks if the requested resolution is supported by the camera.
      * If not, it modifies it by supported parameters.
@@ -111,6 +116,7 @@ public class VideoQuality {
         }
         return v;
     }
+
     public static int[] determineMaximumSupportedFramerate(Camera.Parameters parameters) {
         int[] maxFps = new int[]{0, 0};
         String supportedFpsRangesStr = "Supported frame rates: ";
@@ -125,13 +131,17 @@ public class VideoQuality {
         Log.v(TAG, supportedFpsRangesStr);
         return maxFps;
     }
+
     public boolean equals(VideoQuality quality) {
-        if (quality == null) return false;
+        if (quality == null) {
+            return false;
+        }
         return (quality.resX == this.resX &
                 quality.resY == this.resY &
                 quality.framerate == this.framerate &
                 quality.bitrate == this.bitrate);
     }
+
     public VideoQuality clone() {
         return new VideoQuality(resX, resY, framerate, bitrate);
     }

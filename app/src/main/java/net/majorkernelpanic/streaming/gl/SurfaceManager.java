@@ -80,8 +80,9 @@ public class SurfaceManager {
     }
 
     public void makeCurrent() {
-        if (!EGL14.eglMakeCurrent(mEGLDisplay, mEGLSurface, mEGLSurface, mEGLContext))
+        if (!EGL14.eglMakeCurrent(mEGLDisplay, mEGLSurface, mEGLSurface, mEGLContext)) {
             throw new RuntimeException("eglMakeCurrent failed");
+        }
     }
 
     public void swapBuffer() {

@@ -79,14 +79,14 @@ public class H264Stream extends VideoStream {
     }
 
     /**
-     * Returns a description of the stream using SDP. It can then be included in an SDP file.
+     * Configures the stream. You need to call this before calling {@link #getSessionDescription()} to apply
+     * your configuration of the stream.
      */
-    public synchronized String getSessionDescription() throws IllegalStateException {
-        if (mConfig == null)
-            throw new IllegalStateException("You need to call configure() first !");
-        return "m=video " + String.valueOf(getDestinationPorts()[0]) + " RTP/AVP 96\r\n" +
-                "a=rtpmap:96 H264/90000\r\n" +
-                "a=fmtp:96 packetization-mode=1;profile-level-id=" + mConfig.getProfileLevel() + ";sprop-parameter-sets=" + mConfig.getB64SPS() + "," + mConfig.getB64PPS() + ";\r\n";
+    public synchronized void configure() throws IllegalStateException, IOException {
+        super.configure();
+        mMode = mRequestedMode;
+        mQuality = mRequestedQuality.clone();
+        mConfig = testH264();
     }
 
     /**
@@ -104,14 +104,15 @@ public class H264Stream extends VideoStream {
     }
 
     /**
-     * Configures the stream. You need to call this before calling {@link #getSessionDescription()} to apply
-     * your configuration of the stream.
+     * Returns a description of the stream using SDP. It can then be included in an SDP file.
      */
-    public synchronized void configure() throws IllegalStateException, IOException {
-        super.configure();
-        mMode = mRequestedMode;
-        mQuality = mRequestedQuality.clone();
-        mConfig = testH264();
+    public synchronized String getSessionDescription() throws IllegalStateException {
+        if (mConfig == null) {
+            throw new IllegalStateException("You need to call configure() first !");
+        }
+        return "m=video " + String.valueOf(getDestinationPorts()[0]) + " RTP/AVP 96\r\n" +
+                "a=rtpmap:96 H264/90000\r\n" +
+                "a=fmtp:96 packetization-mode=1;profile-level-id=" + mConfig.getProfileLevel() + ";sprop-parameter-sets=" + mConfig.getB64SPS() + "," + mConfig.getB64PPS() + ";\r\n";
     }
 
     /**
@@ -119,8 +120,11 @@ public class H264Stream extends VideoStream {
      * and determines the pps and sps. Should not be called by the UI thread.
      **/
     private MP4Config testH264() throws IllegalStateException, IOException {
-        if (mMode != MODE_MEDIARECORDER_API) return testMediaCodecAPI();
-        else return testMediaRecorderAPI();
+        if (mMode != MODE_MEDIARECORDER_API) {
+            return testMediaCodecAPI();
+        } else {
+            return testMediaRecorderAPI();
+        }
     }
 
     @SuppressLint("NewApi")
@@ -234,7 +238,9 @@ public class H264Stream extends VideoStream {
             mMediaRecorder.release();
             mMediaRecorder = null;
             lockCamera();
-            if (!cameraOpen) destroyCamera();
+            if (!cameraOpen) {
+                destroyCamera();
+            }
             // Restore flash state
             mFlashEnabled = savedFlashState;
         }
@@ -242,7 +248,9 @@ public class H264Stream extends VideoStream {
         MP4Config config = new MP4Config(TESTFILE);
         // Delete dummy video
         File file = new File(TESTFILE);
-        if (!file.delete()) Log.e(TAG, "Temp file could not be erased");
+        if (!file.delete()) {
+            Log.e(TAG, "Temp file could not be erased");
+        }
         Log.i(TAG, "H264 Test succeded...");
         // Save test result
         if (mSettings != null) {

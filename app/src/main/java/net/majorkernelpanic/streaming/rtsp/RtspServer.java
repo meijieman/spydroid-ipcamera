@@ -119,6 +119,7 @@ public class RtspServer extends Service {
 
     public RtspServer() {
     }
+
     /**
      * See {@link RtspServer.CallbackListener} to check out what events will be fired once you set up a listener.
      *
@@ -128,7 +129,9 @@ public class RtspServer extends Service {
         synchronized (mListeners) {
             if (mListeners.size() > 0) {
                 for (CallbackListener cl : mListeners) {
-                    if (cl == listener) return;
+                    if (cl == listener) {
+                        return;
+                    }
                 }
             }
             mListeners.add(listener);
@@ -169,7 +172,9 @@ public class RtspServer extends Service {
      * of the server has been modified) the RTSP server.
      */
     public void start() {
-        if (!mEnabled || mRestart) stop();
+        if (!mEnabled || mRestart) {
+            stop();
+        }
         if (mEnabled && mListenerThread == null) {
             try {
                 mListenerThread = new RequestListener();
@@ -190,7 +195,9 @@ public class RtspServer extends Service {
                 mListenerThread.kill();
                 for (Session session : mSessions.keySet()) {
                     if (session != null) {
-                        if (session.isStreaming()) session.stop();
+                        if (session.isStreaming()) {
+                            session.stop();
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -206,7 +213,9 @@ public class RtspServer extends Service {
     public boolean isStreaming() {
         for (Session session : mSessions.keySet()) {
             if (session != null) {
-                if (session.isStreaming()) return true;
+                if (session.isStreaming()) {
+                    return true;
+                }
             }
         }
         return false;
@@ -223,15 +232,12 @@ public class RtspServer extends Service {
         long bitrate = 0;
         for (Session session : mSessions.keySet()) {
             if (session != null) {
-                if (session.isStreaming()) bitrate += session.getBitrate();
+                if (session.isStreaming()) {
+                    bitrate += session.getBitrate();
+                }
             }
         }
         return bitrate;
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        return START_STICKY;
     }
 
     @Override
@@ -246,14 +252,21 @@ public class RtspServer extends Service {
     }
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_STICKY;
+    }
+
+    @Override
     public void onDestroy() {
         stop();
         mSharedPreferences.unregisterOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
     }
+
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
+
     protected void postMessage(int id) {
         synchronized (mListeners) {
             if (mListeners.size() > 0) {
@@ -263,6 +276,7 @@ public class RtspServer extends Service {
             }
         }
     }
+
     protected void postError(Exception exception, int id) {
         synchronized (mListeners) {
             if (mListeners.size() > 0) {
@@ -272,6 +286,7 @@ public class RtspServer extends Service {
             }
         }
     }
+
     /**
      * By default the RTSP uses {@link UriParser} to parse the URI requested by the client
      * but you can change that behavior by override this method.
@@ -325,7 +340,9 @@ public class RtspServer extends Service {
             String line;
             Matcher matcher;
             // Parsing request method & uri
-            if ((line = input.readLine()) == null) throw new SocketException("Client disconnected");
+            if ((line = input.readLine()) == null) {
+                throw new SocketException("Client disconnected");
+            }
             matcher = regexMethod.matcher(line);
             matcher.find();
             request.method = matcher.group(1);
@@ -336,7 +353,9 @@ public class RtspServer extends Service {
                 matcher.find();
                 request.headers.put(matcher.group(1).toLowerCase(Locale.US), matcher.group(2));
             }
-            if (line == null) throw new SocketException("Client disconnected");
+            if (line == null) {
+                throw new SocketException("Client disconnected");
+            }
             // It's not an error, it's just easier to follow what's happening in logcat with the request in red
             Log.e(TAG, request.method + " " + request.uri);
             return request;
@@ -595,10 +614,12 @@ public class RtspServer extends Service {
             /* ********************************************************************************** */
             else if (request.method.equalsIgnoreCase("PLAY")) {
                 String requestAttributes = "RTP-Info: ";
-                if (mSession.trackExists(0))
+                if (mSession.trackExists(0)) {
                     requestAttributes += "url=rtsp://" + mClient.getLocalAddress().getHostAddress() + ":" + mClient.getLocalPort() + "/trackID=" + 0 + ";seq=0,";
-                if (mSession.trackExists(1))
+                }
+                if (mSession.trackExists(1)) {
                     requestAttributes += "url=rtsp://" + mClient.getLocalAddress().getHostAddress() + ":" + mClient.getLocalPort() + "/trackID=" + 1 + ";seq=0,";
+                }
                 requestAttributes = requestAttributes.substring(0, requestAttributes.length() - 1) + "\r\nSession: 1185d20035702ca\r\n";
                 response.attributes = requestAttributes;
                 // If no exception has been thrown, we reply with OK

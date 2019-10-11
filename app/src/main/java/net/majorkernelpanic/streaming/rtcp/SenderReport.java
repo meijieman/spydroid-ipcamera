@@ -119,20 +119,25 @@ public class SenderReport {
         }
 
     }
+
     public void setDestination(InetAddress dest, int dport) {
         port = dport;
         upack.setPort(dport);
         upack.setAddress(dest);
     }
+
     public int getPort() {
         return port;
     }
+
     public int getLocalPort() {
         return usock.getLocalPort();
     }
+
     public int getSSRC() {
         return ssrc;
     }
+
     public void setSSRC(int ssrc) {
         this.ssrc = ssrc;
         setLong(ssrc, 4, 8);
@@ -141,6 +146,7 @@ public class SenderReport {
         setLong(packetCount, 20, 24);
         setLong(octetCount, 24, 28);
     }
+
     /**
      * Resets the reports (total number of bytes sent, number of packets sent, etc.)
      */

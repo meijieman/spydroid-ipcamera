@@ -45,15 +45,18 @@ public abstract class AudioStream extends MediaStream {
     public void setAudioSource(int audioSource) {
         mAudioSource = audioSource;
     }
+
     /**
      * Returns the quality of the stream.
      */
     public AudioQuality getAudioQuality() {
         return mQuality;
     }
+
     public void setAudioQuality(AudioQuality quality) {
         mRequestedQuality = quality;
     }
+
     protected void setAudioEncoder(int audioEncoder) {
         mAudioEncoder = audioEncoder;
     }

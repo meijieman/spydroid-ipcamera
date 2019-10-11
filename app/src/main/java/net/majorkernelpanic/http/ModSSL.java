@@ -113,6 +113,7 @@ public final class ModSSL {
         private X509KeyManager() {
             mKeyStore = new JDKKeyStore.BouncyCastleStore();
         }
+
         public synchronized static X509KeyManager loadFromKeyStore(InputStream is, char[] password) throws IOException {
             Log.d(TAG, "Loading certificates from file...");
             X509KeyManager manager = new X509KeyManager();
@@ -120,6 +121,7 @@ public final class ModSSL {
             manager.mPassword = password;
             return manager;
         }
+
         /**
          * This method will not be called. Client authentication has not been implemented.
          */
@@ -129,6 +131,7 @@ public final class ModSSL {
             Log.d(TAG, "chooseClientAlias");
             return null;
         }
+
         @Override
         public synchronized String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
             String localAddress = socket != null ? socket.getLocalAddress().getHostAddress() : "0.0.0.0";
@@ -159,12 +162,14 @@ public final class ModSSL {
             }
             return null;
         }
+
         @Override
         public synchronized X509Certificate[] getCertificateChain(String alias) {
             Certificate caCertificate = mKeyStore.engineGetCertificate("root");
             Certificate leafCertificate = mKeyStore.engineGetCertificate(alias);
             return new X509Certificate[]{(X509Certificate) leafCertificate, (X509Certificate) caCertificate};
         }
+
         /**
          * This method will not be called. Client authentication has not been implemented.
          */
@@ -174,6 +179,23 @@ public final class ModSSL {
             Log.d(TAG, "getClientAliases");
             return null;
         }
+
+        @Override
+        public synchronized String[] getServerAliases(String keyType, Principal[] issuers) {
+            Log.d(TAG, "getServersAliases");
+            if (keyType.equals("RSA")) {
+                int i = 0;
+                Enumeration<String> aliases = mKeyStore.engineAliases();
+                String[] list = new String[mKeyStore.engineSize()];
+                while (aliases.hasMoreElements()) {
+                    list[i++] = aliases.nextElement();
+                }
+                return list;
+            } else {
+                return null;
+            }
+        }
+
         /**
          * Returns the private key of the certificate corresponding to the alias.
          *
@@ -189,19 +211,7 @@ public final class ModSSL {
                 return null;
             }
         }
-        @Override
-        public synchronized String[] getServerAliases(String keyType, Principal[] issuers) {
-            Log.d(TAG, "getServersAliases");
-            if (keyType.equals("RSA")) {
-                int i = 0;
-                Enumeration<String> aliases = mKeyStore.engineAliases();
-                String[] list = new String[mKeyStore.engineSize()];
-                while (aliases.hasMoreElements()) {
-                    list[i++] = aliases.nextElement();
-                }
-                return list;
-            } else return null;
-        }
+
         /**
          * Saves all the certificates generated and their private key in a JKS file
          *

@@ -105,7 +105,9 @@ public class AACStream extends AudioStream {
     }
 
     private static boolean AACStreamingSupported() {
-        if (Build.VERSION.SDK_INT < 14) return false;
+        if (Build.VERSION.SDK_INT < 14) {
+            return false;
+        }
         try {
             MediaRecorder.OutputFormat.class.getField("AAC_ADTS");
             return true;
@@ -123,14 +125,6 @@ public class AACStream extends AudioStream {
         mSettings = prefs;
     }
 
-    @Override
-    public synchronized void start() throws IllegalStateException, IOException {
-        configure();
-        if (!mStreaming) {
-            super.start();
-        }
-    }
-
     public synchronized void configure() throws IllegalStateException, IOException {
         super.configure();
         mQuality = mRequestedQuality.clone();
@@ -143,7 +137,9 @@ public class AACStream extends AudioStream {
             }
         }
         // If he did, we force a reasonable one: 16 kHz
-        if (i > 12) mQuality.samplingRate = 16000;
+        if (i > 12) {
+            mQuality.samplingRate = 16000;
+        }
         if (mMode != mRequestedMode || mPacketizer == null) {
             mMode = mRequestedMode;
             if (mMode == MODE_MEDIARECORDER_API) {
@@ -175,10 +171,38 @@ public class AACStream extends AudioStream {
     }
 
     @Override
-    protected void encodeWithMediaRecorder() throws IOException {
-        testADTS();
-        ((AACADTSPacketizer) mPacketizer).setSamplingRate(mQuality.samplingRate);
-        super.encodeWithMediaRecorder();
+    public synchronized void start() throws IllegalStateException, IOException {
+        configure();
+        if (!mStreaming) {
+            super.start();
+        }
+    }
+
+    /**
+     * Stops the stream.
+     */
+    public synchronized void stop() {
+        if (mStreaming) {
+            if (mMode == MODE_MEDIACODEC_API) {
+                Log.d(TAG, "Interrupting threads...");
+                mThread.interrupt();
+                mAudioRecord.stop();
+                mAudioRecord.release();
+                mAudioRecord = null;
+            }
+            super.stop();
+        }
+    }
+
+    /**
+     * Returns a description of the stream using SDP. It can then be included in an SDP file.
+     * Will fail if called when streaming.
+     */
+    public String getSessionDescription() throws IllegalStateException {
+        if (mSessionDescription == null) {
+            throw new IllegalStateException("You need to call configure() first !");
+        }
+        return mSessionDescription;
     }
 
     @Override
@@ -232,30 +256,11 @@ public class AACStream extends AudioStream {
 
     }
 
-    /**
-     * Stops the stream.
-     */
-    public synchronized void stop() {
-        if (mStreaming) {
-            if (mMode == MODE_MEDIACODEC_API) {
-                Log.d(TAG, "Interrupting threads...");
-                mThread.interrupt();
-                mAudioRecord.stop();
-                mAudioRecord.release();
-                mAudioRecord = null;
-            }
-            super.stop();
-        }
-    }
-
-    /**
-     * Returns a description of the stream using SDP. It can then be included in an SDP file.
-     * Will fail if called when streaming.
-     */
-    public String getSessionDescription() throws IllegalStateException {
-        if (mSessionDescription == null)
-            throw new IllegalStateException("You need to call configure() first !");
-        return mSessionDescription;
+    @Override
+    protected void encodeWithMediaRecorder() throws IOException {
+        testADTS();
+        ((AACADTSPacketizer) mPacketizer).setSamplingRate(mQuality.samplingRate);
+        super.encodeWithMediaRecorder();
     }
 
     /**
@@ -318,7 +323,9 @@ public class AACStream extends AudioStream {
         while (true) {
             if ((raf.readByte() & 0xFF) == 0xFF) {
                 buffer[0] = raf.readByte();
-                if ((buffer[0] & 0xF0) == 0xF0) break;
+                if ((buffer[0] & 0xF0) == 0xF0) {
+                    break;
+                }
             }
         }
         raf.read(buffer, 1, 5);
@@ -339,7 +346,9 @@ public class AACStream extends AudioStream {
             editor.putString(key, mQuality.samplingRate + "," + mConfig + "," + mChannel);
             editor.commit();
         }
-        if (!file.delete()) Log.e(TAG, "Temp file could not be erased");
+        if (!file.delete()) {
+            Log.e(TAG, "Temp file could not be erased");
+        }
 
     }
 

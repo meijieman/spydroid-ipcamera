@@ -91,7 +91,9 @@ public class AACADTSPacketizer extends AbstractPacketizer implements Runnable {
                 while (true) {
                     if ((is.read() & 0xFF) == 0xFF) {
                         header[1] = (byte) is.read();
-                        if ((header[1] & 0xF0) == 0xF0) break;
+                        if ((header[1] & 0xF0) == 0xF0) {
+                            break;
+                        }
                     }
                 }
                 // Parse adts header (ADTS packets start with a 7 or 9 byte long header)
@@ -107,7 +109,9 @@ public class AACADTSPacketizer extends AbstractPacketizer implements Runnable {
                 // The number of RTP packets that will be sent for this ADTS frame
                 nbpk = frameLength / MAXPACKETSIZE + 1;
                 // Read CRS if any
-                if (!protection) is.read(header, 0, 2);
+                if (!protection) {
+                    is.read(header, 0, 2);
+                }
                 samplingRate = AACStream.AUDIO_SAMPLING_RATES[(header[2] & 0x3C) >> 2];
                 profile = ((header[2] & 0xC0) >> 6) + 1;
                 // We update the RTP timestamp
@@ -159,7 +163,9 @@ public class AACADTSPacketizer extends AbstractPacketizer implements Runnable {
             len = is.read(buffer, offset + sum, length - sum);
             if (len < 0) {
                 throw new IOException("End of stream");
-            } else sum += len;
+            } else {
+                sum += len;
+            }
         }
         return sum;
     }

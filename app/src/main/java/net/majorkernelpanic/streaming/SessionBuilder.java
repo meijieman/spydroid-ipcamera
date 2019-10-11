@@ -92,6 +92,7 @@ public class SessionBuilder {
     // Removes the default public constructor
     private SessionBuilder() {
     }
+
     /**
      * Returns a reference to the {@link SessionBuilder}.
      *
@@ -125,8 +126,9 @@ public class SessionBuilder {
             case AUDIO_AAC:
                 AACStream stream = new AACStream();
                 session.addAudioTrack(stream);
-                if (mContext != null)
+                if (mContext != null) {
                     stream.setPreferences(PreferenceManager.getDefaultSharedPreferences(mContext));
+                }
                 break;
             case AUDIO_AMRNB:
                 session.addAudioTrack(new AMRNBStream());
@@ -138,8 +140,9 @@ public class SessionBuilder {
                 break;
             case VIDEO_H264:
                 H264Stream stream = new H264Stream(mCamera);
-                if (mContext != null)
+                if (mContext != null) {
                     stream.setPreferences(PreferenceManager.getDefaultSharedPreferences(mContext));
+                }
                 session.addVideoTrack(stream);
                 break;
         }
@@ -159,10 +162,12 @@ public class SessionBuilder {
         return session;
 
     }
+
     public SessionBuilder setFlashEnabled(boolean enabled) {
         mFlash = enabled;
         return this;
     }
+
     /**
      * Sets the orientation of the preview.
      *
@@ -172,16 +177,19 @@ public class SessionBuilder {
         mOrientation = orientation;
         return this;
     }
+
     public SessionBuilder setCallback(Session.Callback callback) {
         mCallback = callback;
         return this;
     }
+
     /**
      * Returns the context set with {@link #setContext(Context)}
      */
     public Context getContext() {
         return mContext;
     }
+
     /**
      * Access to the context is needed for the H264Stream class to store some stuff in the SharedPreferences.
      * Note that you should pass the Application context, not the context of an Activity.
@@ -190,12 +198,14 @@ public class SessionBuilder {
         mContext = context;
         return this;
     }
+
     /**
      * Returns the destination ip address set with {@link #setDestination(String)}.
      */
     public String getDestination() {
         return mDestination;
     }
+
     /**
      * Sets the destination of the session.
      */
@@ -203,12 +213,14 @@ public class SessionBuilder {
         mDestination = destination;
         return this;
     }
+
     /**
      * Returns the origin ip address set with {@link #setOrigin(String)}.
      */
     public String getOrigin() {
         return mOrigin;
     }
+
     /**
      * Sets the origin of the session. It appears in the SDP of the session.
      */
@@ -216,12 +228,14 @@ public class SessionBuilder {
         mOrigin = origin;
         return this;
     }
+
     /**
      * Returns the audio encoder set with {@link #setAudioEncoder(int)}.
      */
     public int getAudioEncoder() {
         return mAudioEncoder;
     }
+
     /**
      * Sets the audio encoder.
      */
@@ -229,22 +243,26 @@ public class SessionBuilder {
         mAudioEncoder = encoder;
         return this;
     }
+
     /**
      * Returns the id of the {@link android.hardware.Camera} set with {@link #setCamera(int)}.
      */
     public int getCamera() {
         return mCamera;
     }
+
     public SessionBuilder setCamera(int camera) {
         mCamera = camera;
         return this;
     }
+
     /**
      * Returns the video encoder set with {@link #setVideoEncoder(int)}.
      */
     public int getVideoEncoder() {
         return mVideoEncoder;
     }
+
     /**
      * Sets the default video encoder.
      */
@@ -252,12 +270,14 @@ public class SessionBuilder {
         mVideoEncoder = encoder;
         return this;
     }
+
     /**
      * Returns the VideoQuality set with {@link #setVideoQuality(VideoQuality)}.
      */
     public VideoQuality getVideoQuality() {
         return mVideoQuality;
     }
+
     /**
      * Sets the video stream quality.
      */
@@ -265,12 +285,14 @@ public class SessionBuilder {
         mVideoQuality = quality.clone();
         return this;
     }
+
     /**
      * Returns the AudioQuality set with {@link #setAudioQuality(AudioQuality)}.
      */
     public AudioQuality getAudioQuality() {
         return mAudioQuality;
     }
+
     /**
      * Sets the audio quality.
      */
@@ -278,18 +300,21 @@ public class SessionBuilder {
         mAudioQuality = quality.clone();
         return this;
     }
+
     /**
      * Returns the flash state set with {@link #setFlashEnabled(boolean)}.
      */
     public boolean getFlashState() {
         return mFlash;
     }
+
     /**
      * Returns the SurfaceView set with {@link #setSurfaceView(SurfaceView)}.
      */
     public SurfaceView getSurfaceView() {
         return mSurfaceView;
     }
+
     /**
      * Sets the SurfaceView required to preview the video stream.
      **/
@@ -297,16 +322,19 @@ public class SessionBuilder {
         mSurfaceView = surfaceView;
         return this;
     }
+
     /**
      * Returns the time to live set with {@link #setTimeToLive(int)}.
      */
     public int getTimeToLive() {
         return mTimeToLive;
     }
+
     public SessionBuilder setTimeToLive(int ttl) {
         mTimeToLive = ttl;
         return this;
     }
+
     /**
      * Returns a new {@link SessionBuilder} with the same configuration.
      */

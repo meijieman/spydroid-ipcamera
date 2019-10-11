@@ -36,6 +36,7 @@ public class NV21Convertor {
     private boolean mPlanar, mPanesReversed = false;
     private int mYPadding;
     private byte[] mBuffer;
+
     public void setSize(int width, int height) {
         mHeight = height;
         mWidth = width;
@@ -43,9 +44,11 @@ public class NV21Convertor {
         mStride = width;
         mSize = mWidth * mHeight;
     }
+
     public int getBufferSize() {
         return 3 * mSize / 2;
     }
+
     public void setEncoderColorFormat(int colorFormat) {
         switch (colorFormat) {
             case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar:
@@ -59,33 +62,43 @@ public class NV21Convertor {
                 break;
         }
     }
+
     public void setColorPanesReversed(boolean b) {
         mPanesReversed = b;
     }
+
     public int getStride() {
         return mStride;
     }
+
     public void setStride(int width) {
         mStride = width;
     }
+
     public int getSliceHeigth() {
         return mSliceHeight;
     }
+
     public void setSliceHeigth(int height) {
         mSliceHeight = height;
     }
+
     public int getYPadding() {
         return mYPadding;
     }
+
     public void setYPadding(int padding) {
         mYPadding = padding;
     }
+
     public boolean getPlanar() {
         return mPlanar;
     }
+
     public void setPlanar(boolean planar) {
         mPlanar = planar;
     }
+
     public boolean getUVPanesReversed() {
         return mPanesReversed;
     }

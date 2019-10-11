@@ -54,6 +54,7 @@ public class PreviewFragment extends Fragment {
             mRtspServer = (RtspServer) ((RtspServer.LocalBinder) service).getService();
             update();
         }
+
         @Override
         public void onServiceDisconnected(ComponentName name) {
         }
@@ -64,26 +65,17 @@ public class PreviewFragment extends Fragment {
             mHttpServer = (CustomHttpServer) ((TinyHttpServer.LocalBinder) service).getService();
             update();
         }
+
         @Override
         public void onServiceDisconnected(ComponentName name) {
         }
     };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
-    @Override
-    public void onPause() {
-        super.onPause();
-        getActivity().unbindService(mHttpServiceConnection);
-        getActivity().unbindService(mRtspServiceConnection);
-    }
-    @Override
-    public void onResume() {
-        super.onResume();
-        getActivity().bindService(new Intent(getActivity(), CustomHttpServer.class), mHttpServiceConnection, Context.BIND_AUTO_CREATE);
-        getActivity().bindService(new Intent(getActivity(), CustomRtspServer.class), mRtspServiceConnection, Context.BIND_AUTO_CREATE);
-    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.preview, container, false);
@@ -95,15 +87,31 @@ public class PreviewFragment extends Fragment {
         }
         return rootView;
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getActivity().bindService(new Intent(getActivity(), CustomHttpServer.class), mHttpServiceConnection, Context.BIND_AUTO_CREATE);
+        getActivity().bindService(new Intent(getActivity(), CustomRtspServer.class), mRtspServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().unbindService(mHttpServiceConnection);
+        getActivity().unbindService(mRtspServiceConnection);
+    }
+
     public void update() {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (mTextView != null) {
-                    if ((mRtspServer != null && mRtspServer.isStreaming()) || (mHttpServer != null && mHttpServer.isStreaming()))
+                    if ((mRtspServer != null && mRtspServer.isStreaming()) || (mHttpServer != null && mHttpServer.isStreaming())) {
                         mTextView.setVisibility(View.INVISIBLE);
-                    else
+                    } else {
                         mTextView.setVisibility(View.VISIBLE);
+                    }
                 }
             }
         });

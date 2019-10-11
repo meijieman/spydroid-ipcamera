@@ -78,9 +78,13 @@ public class OptionsActivity extends PreferenceActivity {
         httpEnabled.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 boolean state = (Boolean) newValue;
-                if (httpsEnabled != null) httpsEnabled.setEnabled(state);
+                if (httpsEnabled != null) {
+                    httpsEnabled.setEnabled(state);
+                }
                 httpPort.setEnabled(state);
-                if (httpsPort != null) httpsPort.setEnabled(state);
+                if (httpsPort != null) {
+                    httpsPort.setEnabled(state);
+                }
                 Editor editor = settings.edit();
                 // Updates the HTTP server
                 if (!state) {

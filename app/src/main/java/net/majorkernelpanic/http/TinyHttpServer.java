@@ -200,6 +200,7 @@ public class TinyHttpServer extends Service {
             }
         }
     };
+
     /**
      * See {@link TinyHttpServer.CallbackListener} to check out what events will be fired once you set up a listener.
      *
@@ -210,6 +211,7 @@ public class TinyHttpServer extends Service {
             mListeners.add(listener);
         }
     }
+
     /**
      * Removes the listener.
      *
@@ -220,6 +222,7 @@ public class TinyHttpServer extends Service {
             mListeners.remove(listener);
         }
     }
+
     /**
      * You may add some HttpRequestHandler to modify the default behavior of the server.
      *
@@ -229,12 +232,14 @@ public class TinyHttpServer extends Service {
     protected void addRequestHandler(String pattern, HttpRequestHandler handler) {
         mRegistry.register(pattern, handler);
     }
+
     /**
      * Returns the port used by the HTTP server.
      */
     public int getHttpPort() {
         return mHttpPort;
     }
+
     /**
      * Sets the port for the HTTP server to use.
      *
@@ -245,12 +250,14 @@ public class TinyHttpServer extends Service {
         editor.putString(KEY_HTTP_PORT, String.valueOf(port));
         editor.commit();
     }
+
     /**
      * Returns the port used by the HTTPS server.
      */
     public int getHttpsPort() {
         return mHttpsPort;
     }
+
     /**
      * Sets the port for the HTTPS server to use.
      *
@@ -261,12 +268,14 @@ public class TinyHttpServer extends Service {
         editor.putString(KEY_HTTPS_PORT, String.valueOf(port));
         editor.commit();
     }
+
     /**
      * Indicates whether or not the HTTP server is enabled.
      */
     public boolean isHttpEnabled() {
         return mHttpEnabled;
     }
+
     /**
      * Enables the HTTP server.
      */
@@ -275,12 +284,14 @@ public class TinyHttpServer extends Service {
         editor.putBoolean(KEY_HTTP_ENABLED, enable);
         editor.commit();
     }
+
     /**
      * Indicates whether or not the HTTPS server is enabled.
      */
     public boolean isHttpsEnabled() {
         return mHttpsEnabled;
     }
+
     /**
      * Enables the HTTPS server.
      */
@@ -289,6 +300,7 @@ public class TinyHttpServer extends Service {
         editor.putBoolean(KEY_HTTPS_ENABLED, enable);
         editor.commit();
     }
+
     /**
      * Starts (or restart if needed) the HTTP server.
      */
@@ -323,6 +335,7 @@ public class TinyHttpServer extends Service {
         mHttpsUpdate = false;
 
     }
+
     /**
      * Stops the HTTP server and/or the HTTPS server but not the Android service.
      */
@@ -338,6 +351,7 @@ public class TinyHttpServer extends Service {
             mHttpsRequestListener = null;
         }
     }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -387,16 +401,19 @@ public class TinyHttpServer extends Service {
         start();
 
     }
-    @Override
-    public void onDestroy() {
-        stop();
-        mSharedPreferences.unregisterOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
-    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //Log.d(TAG,"TinyServerHttp started !");
         return START_STICKY;
     }
+
+    @Override
+    public void onDestroy() {
+        stop();
+        mSharedPreferences.unregisterOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
+    }
+
     /**
      * See {@link TinyHttpServer.LocalBinder}.
      */
@@ -404,6 +421,7 @@ public class TinyHttpServer extends Service {
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
+
     protected void postError(Exception exception, int id) {
         synchronized (mListeners) {
             if (mListeners.size() > 0) {
@@ -413,6 +431,7 @@ public class TinyHttpServer extends Service {
             }
         }
     }
+
     protected void postMessage(int id) {
         synchronized (mListeners) {
             if (mListeners.size() > 0) {

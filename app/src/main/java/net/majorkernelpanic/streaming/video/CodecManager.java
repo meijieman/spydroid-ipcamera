@@ -151,7 +151,9 @@ public class CodecManager {
             // We loop through the encoders, apparently this can take up to a sec (testes on a GS3)
             for (int j = MediaCodecList.getCodecCount() - 1; j >= 0; j--) {
                 MediaCodecInfo codecInfo = MediaCodecList.getCodecInfoAt(j);
-                if (!codecInfo.isEncoder()) continue;
+                if (!codecInfo.isEncoder()) {
+                    continue;
+                }
                 String[] types = codecInfo.getSupportedTypes();
                 for (int i = 0; i < types.length; i++) {
                     if (types[i].equalsIgnoreCase(mimeType)) {
@@ -166,12 +168,14 @@ public class CodecManager {
                         for (int k = 0; k < capabilities.colorFormats.length; k++) {
                             int format = capabilities.colorFormats[k];
                             if (software) {
-                                if (softwareCodecs.get(format) == null)
+                                if (softwareCodecs.get(format) == null) {
                                     softwareCodecs.put(format, new ArrayList<String>());
+                                }
                                 softwareCodecs.get(format).add(codecInfo.getName());
                             } else {
-                                if (hardwareCodecs.get(format) == null)
+                                if (hardwareCodecs.get(format) == null) {
                                     hardwareCodecs.put(format, new ArrayList<String>());
+                                }
                                 hardwareCodecs.get(format).add(codecInfo.getName());
                             }
                         }
@@ -182,10 +186,12 @@ public class CodecManager {
             // Logs the supported color formats on the phone
             StringBuilder e = new StringBuilder();
             e.append("Supported color formats on this phone: ");
-            for (int i = 0; i < softwareCodecs.size(); i++)
+            for (int i = 0; i < softwareCodecs.size(); i++) {
                 e.append(softwareCodecs.keyAt(i) + ", ");
-            for (int i = 0; i < hardwareCodecs.size(); i++)
+            }
+            for (int i = 0; i < hardwareCodecs.size(); i++) {
                 e.append(hardwareCodecs.keyAt(i) + (i == hardwareCodecs.size() - 1 ? "." : ", "));
+            }
             Log.v(TAG, e.toString());
             sSoftwareCodecs.put(mimeType, softwareCodecs);
             sHardwareCodecs.put(mimeType, hardwareCodecs);

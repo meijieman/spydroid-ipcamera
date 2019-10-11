@@ -100,6 +100,7 @@ public abstract class VideoStream extends MediaStream {
         super();
         setCamera(camera);
     }
+
     /**
      * Switch between the front facing and the back facing camera of the phone.
      * If {@link #startPreview()} has been called, the preview will be  briefly interrupted.
@@ -110,20 +111,27 @@ public abstract class VideoStream extends MediaStream {
      * @throws RuntimeException
      **/
     public void switchCamera() throws RuntimeException, IOException {
-        if (Camera.getNumberOfCameras() == 1)
+        if (Camera.getNumberOfCameras() == 1) {
             throw new IllegalStateException("Phone only has one camera !");
+        }
         boolean streaming = mStreaming;
         boolean previewing = mCamera != null && mCameraOpenedManually;
         mCameraId = (mCameraId == CameraInfo.CAMERA_FACING_BACK) ? CameraInfo.CAMERA_FACING_FRONT : CameraInfo.CAMERA_FACING_BACK;
         setCamera(mCameraId);
         stopPreview();
         mFlashEnabled = false;
-        if (previewing) startPreview();
-        if (streaming) start();
+        if (previewing) {
+            startPreview();
+        }
+        if (streaming) {
+            start();
+        }
     }
+
     public int getCamera() {
         return mCameraId;
     }
+
     /**
      * Sets the camera that will be used to capture video.
      * You can call this method at any time and changes will take effect next time you start the stream.
@@ -141,6 +149,7 @@ public abstract class VideoStream extends MediaStream {
             }
         }
     }
+
     /**
      * Sets a Surface to show a preview of recorded media (video).
      * You can call this method at any time and changes will take effect next time you call {@link #start()}.
@@ -153,36 +162,41 @@ public abstract class VideoStream extends MediaStream {
         if (mSurfaceView.getHolder() != null) {
             mSurfaceHolderCallback = new Callback() {
                 @Override
+                public void surfaceCreated(SurfaceHolder holder) {
+                    mSurfaceReady = true;
+                }
+
+                @Override
+                public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+                    Log.d(TAG, "Surface Changed !");
+                }
+
+                @Override
                 public void surfaceDestroyed(SurfaceHolder holder) {
                     mSurfaceReady = false;
                     stopPreview();
                     Log.d(TAG, "Surface destroyed !");
-                }
-                @Override
-                public void surfaceCreated(SurfaceHolder holder) {
-                    mSurfaceReady = true;
-                }
-                @Override
-                public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-                    Log.d(TAG, "Surface Changed !");
                 }
             };
             mSurfaceView.getHolder().addCallback(mSurfaceHolderCallback);
             mSurfaceReady = true;
         }
     }
+
     /**
      * Toggle the LED of the phone if it has one.
      */
     public synchronized void toggleFlash() {
         setFlashState(!mFlashEnabled);
     }
+
     /**
      * Indicates whether or not the flash of the phone is on.
      */
     public boolean getFlashState() {
         return mFlashEnabled;
     }
+
     /**
      * Turns the LED on or off if phone has one.
      */
@@ -215,6 +229,7 @@ public abstract class VideoStream extends MediaStream {
             mFlashEnabled = state;
         }
     }
+
     /**
      * Sets the orientation of the preview.
      *
@@ -223,12 +238,14 @@ public abstract class VideoStream extends MediaStream {
     public void setPreviewOrientation(int orientation) {
         mRequestedOrientation = orientation;
     }
+
     /**
      * Returns the quality of the stream.
      */
     public VideoQuality getVideoQuality() {
         return mRequestedQuality;
     }
+
     /**
      * Sets the configuration of the stream. You can call this method at any time
      * and changes will take effect next time you call {@link #configure()}.
@@ -238,6 +255,7 @@ public abstract class VideoStream extends MediaStream {
     public void setVideoQuality(VideoQuality videoQuality) {
         mRequestedQuality = videoQuality.clone();
     }
+
     /**
      * Some data (SPS and PPS params) needs to be stored when {@link #getSessionDescription()} is called
      *
@@ -262,7 +280,9 @@ public abstract class VideoStream extends MediaStream {
      * if {@link #startPreview()} has not aready been called.
      */
     public synchronized void start() throws IllegalStateException, IOException {
-        if (!mPreviewStarted) mCameraOpenedManually = false;
+        if (!mPreviewStarted) {
+            mCameraOpenedManually = false;
+        }
         super.start();
         Log.d(TAG, "Stream configuration: FPS: " + mQuality.framerate + " Width: " + mQuality.resX + " Height: " + mQuality.resY);
     }
@@ -292,32 +312,13 @@ public abstract class VideoStream extends MediaStream {
         }
     }
 
-    public synchronized void startPreview()
-            throws CameraInUseException,
-            InvalidSurfaceException,
-            ConfNotSupportedException,
-            RuntimeException {
-        mCameraOpenedManually = true;
-        if (!mPreviewStarted) {
-            createCamera();
-            updateCamera();
-            try {
-                mCamera.startPreview();
-                mPreviewStarted = true;
-            } catch (RuntimeException e) {
-                destroyCamera();
-                throw e;
-            }
-        }
-    }
-
     /**
-     * Stops the preview.
+     * Returns a description of the stream using SDP.
+     * This method can only be called after {@link Stream#configure()}.
+     *
+     * @throws IllegalStateException Thrown when {@link Stream#configure()} wa not called.
      */
-    public synchronized void stopPreview() {
-        mCameraOpenedManually = false;
-        stop();
-    }
+    public abstract String getSessionDescription() throws IllegalStateException;
 
     /**
      * Video encoding is done by a MediaRecorder.
@@ -358,9 +359,13 @@ public abstract class VideoStream extends MediaStream {
             byte buffer[] = new byte[4];
             // Skip all atoms preceding mdat atom
             while (!Thread.interrupted()) {
-                while (is.read() != 'm') ;
+                while (is.read() != 'm') {
+                    ;
+                }
                 is.read(buffer, 0, 3);
-                if (buffer[0] == 'd' && buffer[1] == 'a' && buffer[2] == 't') break;
+                if (buffer[0] == 'd' && buffer[1] == 'a' && buffer[2] == 't') {
+                    break;
+                }
             }
         } catch (IOException e) {
             Log.e(TAG, "Couldn't skip mp4 header :/");
@@ -375,7 +380,6 @@ public abstract class VideoStream extends MediaStream {
 
     }
 
-
     /**
      * Video encoding is done by a MediaCodec.
      */
@@ -387,6 +391,33 @@ public abstract class VideoStream extends MediaStream {
             // Uses dequeueInputBuffer to feed the encoder
             encodeWithMediaCodecMethod1();
         }
+    }
+
+    public synchronized void startPreview()
+            throws CameraInUseException,
+            InvalidSurfaceException,
+            ConfNotSupportedException,
+            RuntimeException {
+        mCameraOpenedManually = true;
+        if (!mPreviewStarted) {
+            createCamera();
+            updateCamera();
+            try {
+                mCamera.startPreview();
+                mPreviewStarted = true;
+            } catch (RuntimeException e) {
+                destroyCamera();
+                throw e;
+            }
+        }
+    }
+
+    /**
+     * Stops the preview.
+     */
+    public synchronized void stopPreview() {
+        mCameraOpenedManually = false;
+        stop();
     }
 
     /**
@@ -423,6 +454,7 @@ public abstract class VideoStream extends MediaStream {
         Camera.PreviewCallback callback = new Camera.PreviewCallback() {
             long now = System.nanoTime() / 1000, oldnow = now, i = 0;
             ByteBuffer[] inputBuffers = mMediaCodec.getInputBuffers();
+
             @Override
             public void onPreviewFrame(byte[] data, Camera camera) {
                 oldnow = now;
@@ -445,7 +477,9 @@ public abstract class VideoStream extends MediaStream {
                 }
             }
         };
-        for (int i = 0; i < 10; i++) mCamera.addCallbackBuffer(new byte[convertor.getBufferSize()]);
+        for (int i = 0; i < 10; i++) {
+            mCamera.addCallbackBuffer(new byte[convertor.getBufferSize()]);
+        }
         mCamera.setPreviewCallbackWithBuffer(callback);
         // The packetizer encapsulates the bit stream in an RTP stream and send it over the network
         mPacketizer.setDestination(mDestination, mRtpPort, mRtcpPort);
@@ -487,14 +521,6 @@ public abstract class VideoStream extends MediaStream {
     }
 
     /**
-     * Returns a description of the stream using SDP.
-     * This method can only be called after {@link Stream#configure()}.
-     *
-     * @throws IllegalStateException Thrown when {@link Stream#configure()} wa not called.
-     */
-    public abstract String getSessionDescription() throws IllegalStateException;
-
-    /**
      * Opens the camera in a new Looper thread so that the preview callback is not called from the main thread
      * If an exception is thrown in this Looper thread, we bring it back into the main thread.
      *
@@ -520,14 +546,18 @@ public abstract class VideoStream extends MediaStream {
         });
         mCameraThread.start();
         lock.acquireUninterruptibly();
-        if (exception[0] != null) throw new CameraInUseException(exception[0].getMessage());
+        if (exception[0] != null) {
+            throw new CameraInUseException(exception[0].getMessage());
+        }
     }
 
     protected synchronized void createCamera() throws RuntimeException {
-        if (mSurfaceView == null)
+        if (mSurfaceView == null) {
             throw new InvalidSurfaceException("Invalid surface !");
-        if (mSurfaceView.getHolder() == null || !mSurfaceReady)
+        }
+        if (mSurfaceView.getHolder() == null || !mSurfaceReady) {
             throw new InvalidSurfaceException("Invalid surface !");
+        }
         if (mCamera == null) {
             openCamera();
             mUnlocked = false;
@@ -578,7 +608,9 @@ public abstract class VideoStream extends MediaStream {
 
     protected synchronized void destroyCamera() {
         if (mCamera != null) {
-            if (mStreaming) super.stop();
+            if (mStreaming) {
+                super.stop();
+            }
             lockCamera();
             mCamera.stopPreview();
             try {
@@ -650,6 +682,7 @@ public abstract class VideoStream extends MediaStream {
         final Camera.PreviewCallback callback = new Camera.PreviewCallback() {
             int i = 0, t = 0;
             long now, oldnow, count = 0;
+
             @Override
             public void onPreviewFrame(byte[] data, Camera camera) {
                 i++;

@@ -98,11 +98,13 @@ public class SpydroidActivity extends FragmentActivity {
         @Override
         public void onMessage(RtspServer server, int message) {
             if (message == RtspServer.MESSAGE_STREAMING_STARTED) {
-                if (mAdapter != null && mAdapter.getHandsetFragment() != null)
+                if (mAdapter != null && mAdapter.getHandsetFragment() != null) {
                     mAdapter.getHandsetFragment().update();
+                }
             } else if (message == RtspServer.MESSAGE_STREAMING_STOPPED) {
-                if (mAdapter != null && mAdapter.getHandsetFragment() != null)
+                if (mAdapter != null && mAdapter.getHandsetFragment() != null) {
                     mAdapter.getHandsetFragment().update();
+                }
             }
         }
 
@@ -144,15 +146,19 @@ public class SpydroidActivity extends FragmentActivity {
         @Override
         public void onMessage(TinyHttpServer server, int message) {
             if (message == CustomHttpServer.MESSAGE_STREAMING_STARTED) {
-                if (mAdapter != null && mAdapter.getHandsetFragment() != null)
+                if (mAdapter != null && mAdapter.getHandsetFragment() != null) {
                     mAdapter.getHandsetFragment().update();
-                if (mAdapter != null && mAdapter.getPreviewFragment() != null)
+                }
+                if (mAdapter != null && mAdapter.getPreviewFragment() != null) {
                     mAdapter.getPreviewFragment().update();
+                }
             } else if (message == CustomHttpServer.MESSAGE_STREAMING_STOPPED) {
-                if (mAdapter != null && mAdapter.getHandsetFragment() != null)
+                if (mAdapter != null && mAdapter.getHandsetFragment() != null) {
                     mAdapter.getHandsetFragment().update();
-                if (mAdapter != null && mAdapter.getPreviewFragment() != null)
+                }
+                if (mAdapter != null && mAdapter.getPreviewFragment() != null) {
                     mAdapter.getPreviewFragment().update();
+                }
             }
         }
 
@@ -171,6 +177,15 @@ public class SpydroidActivity extends FragmentActivity {
         }
 
     };
+
+    @Override
+    public void onBackPressed() {
+        Intent setIntent = new Intent(Intent.ACTION_MAIN);
+        setIntent.addCategory(Intent.CATEGORY_HOME);
+        setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(setIntent);
+    }
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mApplication = (SpydroidApplication) getApplication();
@@ -207,6 +222,25 @@ public class SpydroidActivity extends FragmentActivity {
         this.startService(new Intent(this, CustomRtspServer.class));
 
     }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "SpydroidActivity destroyed");
+        super.onDestroy();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mApplication.applicationForeground = false;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mApplication.applicationForeground = true;
+    }
+
     public void onStart() {
         super.onStart();
         // Lock screen
@@ -231,38 +265,24 @@ public class SpydroidActivity extends FragmentActivity {
         bindService(new Intent(this, CustomRtspServer.class), mRtspServiceConnection, Context.BIND_AUTO_CREATE);
 
     }
+
     @Override
     public void onStop() {
         super.onStop();
         // A WakeLock should only be released when isHeld() is true !
-        if (mWakeLock.isHeld()) mWakeLock.release();
-        if (mHttpServer != null) mHttpServer.removeCallbackListener(mHttpCallbackListener);
+        if (mWakeLock.isHeld()) {
+            mWakeLock.release();
+        }
+        if (mHttpServer != null) {
+            mHttpServer.removeCallbackListener(mHttpCallbackListener);
+        }
         unbindService(mHttpServiceConnection);
-        if (mRtspServer != null) mRtspServer.removeCallbackListener(mRtspCallbackListener);
+        if (mRtspServer != null) {
+            mRtspServer.removeCallbackListener(mRtspCallbackListener);
+        }
         unbindService(mRtspServiceConnection);
     }
-    @Override
-    public void onResume() {
-        super.onResume();
-        mApplication.applicationForeground = true;
-    }
-    @Override
-    public void onPause() {
-        super.onPause();
-        mApplication.applicationForeground = false;
-    }
-    @Override
-    public void onDestroy() {
-        Log.d(TAG, "SpydroidActivity destroyed");
-        super.onDestroy();
-    }
-    @Override
-    public void onBackPressed() {
-        Intent setIntent = new Intent(Intent.ACTION_MAIN);
-        setIntent.addCategory(Intent.CATEGORY_HOME);
-        setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(setIntent);
-    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -271,6 +291,7 @@ public class SpydroidActivity extends FragmentActivity {
         MenuItemCompat.setShowAsAction(menu.findItem(R.id.options), 1);
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
@@ -287,9 +308,12 @@ public class SpydroidActivity extends FragmentActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
     private void quitSpydroid() {
         // Removes notification
-        if (mApplication.notificationEnabled) removeNotification();
+        if (mApplication.notificationEnabled) {
+            removeNotification();
+        }
         // Kills HTTP server
         this.stopService(new Intent(this, CustomHttpServer.class));
         // Kills RTSP server
@@ -297,6 +321,7 @@ public class SpydroidActivity extends FragmentActivity {
         // Returns to home menu
         finish();
     }
+
     private void removeNotification() {
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancel(0);
     }
@@ -338,22 +363,6 @@ public class SpydroidActivity extends FragmentActivity {
             return device == HANDSET ? 3 : 2;
         }
 
-        public HandsetFragment getHandsetFragment() {
-            if (device == HANDSET) {
-                return (HandsetFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.handset_pager + ":0");
-            } else {
-                return (HandsetFragment) getSupportFragmentManager().findFragmentById(R.id.handset);
-            }
-        }
-
-        public PreviewFragment getPreviewFragment() {
-            if (device == HANDSET) {
-                return (PreviewFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.handset_pager + ":1");
-            } else {
-                return (PreviewFragment) getSupportFragmentManager().findFragmentById(R.id.preview);
-            }
-        }
-
         @Override
         public CharSequence getPageTitle(int position) {
             if (device == HANDSET) {
@@ -374,6 +383,22 @@ public class SpydroidActivity extends FragmentActivity {
                 }
             }
             return null;
+        }
+
+        public HandsetFragment getHandsetFragment() {
+            if (device == HANDSET) {
+                return (HandsetFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.handset_pager + ":0");
+            } else {
+                return (HandsetFragment) getSupportFragmentManager().findFragmentById(R.id.handset);
+            }
+        }
+
+        public PreviewFragment getPreviewFragment() {
+            if (device == HANDSET) {
+                return (PreviewFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.handset_pager + ":1");
+            } else {
+                return (PreviewFragment) getSupportFragmentManager().findFragmentById(R.id.preview);
+            }
         }
 
     }

@@ -110,11 +110,13 @@ public class HandsetFragment extends Fragment {
             }
         }
     };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mApplication = (SpydroidApplication) getActivity().getApplication();
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.main, container, false);
@@ -130,6 +132,7 @@ public class HandsetFragment extends Fragment {
         mTextBitrate = (TextView) rootView.findViewById(R.id.bitrate);
         return rootView;
     }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -142,6 +145,15 @@ public class HandsetFragment extends Fragment {
         }
 
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getActivity().bindService(new Intent(getActivity(), CustomHttpServer.class), mHttpServiceConnection, Context.BIND_AUTO_CREATE);
+        getActivity().bindService(new Intent(getActivity(), CustomRtspServer.class), mRtspServiceConnection, Context.BIND_AUTO_CREATE);
+        getActivity().registerReceiver(mWifiStateReceiver, new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
+    }
+
     @Override
     public void onPause() {
         super.onPause();
@@ -150,13 +162,7 @@ public class HandsetFragment extends Fragment {
         getActivity().unbindService(mHttpServiceConnection);
         getActivity().unbindService(mRtspServiceConnection);
     }
-    @Override
-    public void onResume() {
-        super.onResume();
-        getActivity().bindService(new Intent(getActivity(), CustomHttpServer.class), mHttpServiceConnection, Context.BIND_AUTO_CREATE);
-        getActivity().bindService(new Intent(getActivity(), CustomRtspServer.class), mRtspServiceConnection, Context.BIND_AUTO_CREATE);
-        getActivity().registerReceiver(mWifiStateReceiver, new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
-    }
+
     public void update() {
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -177,14 +183,17 @@ public class HandsetFragment extends Fragment {
                             mDescription2.setVisibility(View.VISIBLE);
                             mLine2.setVisibility(View.VISIBLE);
                         }
-                        if (!mHttpServer.isStreaming() && !mRtspServer.isStreaming())
+                        if (!mHttpServer.isStreaming() && !mRtspServer.isStreaming()) {
                             displayIpAddress();
-                        else streamingState(1);
+                        } else {
+                            streamingState(1);
+                        }
                     }
                 }
             }
         });
     }
+
     private void streamingState(int state) {
         if (state == 0) {
             // Not streaming
@@ -210,6 +219,7 @@ public class HandsetFragment extends Fragment {
             mSignWifi.startAnimation(mPulseAnimation);
         }
     }
+
     private void displayIpAddress() {
         WifiManager wifiManager = (WifiManager) mApplication.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo info = wifiManager.getConnectionInfo();

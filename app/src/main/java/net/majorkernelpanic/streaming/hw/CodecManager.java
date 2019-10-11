@@ -44,6 +44,7 @@ public class CodecManager {
 
     private static Codec[] sEncoders = null;
     private static Codec[] sDecoders = null;
+
     /**
      * Lists all encoders that claim to support a color format that we know how to use.
      *
@@ -51,12 +52,16 @@ public class CodecManager {
      */
     @SuppressLint("NewApi")
     public synchronized static Codec[] findEncodersForMimeType(String mimeType) {
-        if (sEncoders != null) return sEncoders;
+        if (sEncoders != null) {
+            return sEncoders;
+        }
         ArrayList<Codec> encoders = new ArrayList<Codec>();
         // We loop through the encoders, apparently this can take up to a sec (testes on a GS3)
         for (int j = MediaCodecList.getCodecCount() - 1; j >= 0; j--) {
             MediaCodecInfo codecInfo = MediaCodecList.getCodecInfoAt(j);
-            if (!codecInfo.isEncoder()) continue;
+            if (!codecInfo.isEncoder()) {
+                continue;
+            }
             String[] types = codecInfo.getSupportedTypes();
             for (int i = 0; i < types.length; i++) {
                 if (types[i].equalsIgnoreCase(mimeType)) {
@@ -84,6 +89,7 @@ public class CodecManager {
         return sEncoders;
 
     }
+
     /**
      * Lists all decoders that claim to support a color format that we know how to use.
      *
@@ -91,12 +97,16 @@ public class CodecManager {
      */
     @SuppressLint("NewApi")
     public synchronized static Codec[] findDecodersForMimeType(String mimeType) {
-        if (sDecoders != null) return sDecoders;
+        if (sDecoders != null) {
+            return sDecoders;
+        }
         ArrayList<Codec> decoders = new ArrayList<Codec>();
         // We loop through the decoders, apparently this can take up to a sec (testes on a GS3)
         for (int j = MediaCodecList.getCodecCount() - 1; j >= 0; j--) {
             MediaCodecInfo codecInfo = MediaCodecList.getCodecInfoAt(j);
-            if (codecInfo.isEncoder()) continue;
+            if (codecInfo.isEncoder()) {
+                continue;
+            }
             String[] types = codecInfo.getSupportedTypes();
             for (int i = 0; i < types.length; i++) {
                 if (types[i].equalsIgnoreCase(mimeType)) {
@@ -135,6 +145,7 @@ public class CodecManager {
     static class Codec {
         public String name;
         public Integer[] formats;
+
         public Codec(String name, Integer[] formats) {
             this.name = name;
             this.formats = formats;

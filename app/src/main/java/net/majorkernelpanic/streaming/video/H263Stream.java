@@ -62,6 +62,12 @@ public class H263Stream extends VideoStream {
         mPacketizer = new H263Packetizer();
     }
 
+    public synchronized void configure() throws IllegalStateException, IOException {
+        super.configure();
+        mMode = MODE_MEDIARECORDER_API;
+        mQuality = mRequestedQuality.clone();
+    }
+
     /**
      * Starts the stream.
      */
@@ -70,12 +76,6 @@ public class H263Stream extends VideoStream {
         if (!mStreaming) {
             super.start();
         }
-    }
-
-    public synchronized void configure() throws IllegalStateException, IOException {
-        super.configure();
-        mMode = MODE_MEDIARECORDER_API;
-        mQuality = mRequestedQuality.clone();
     }
 
     /**

@@ -45,6 +45,7 @@ class MP4Parser {
     public MP4Parser(final String path) throws IOException, FileNotFoundException {
         this.file = new RandomAccessFile(new File(path), "r");
     }
+
     static String toHexString(byte[] buffer, int start, int len) {
         String c;
         StringBuilder s = new StringBuilder();
@@ -54,6 +55,7 @@ class MP4Parser {
         }
         return s.toString();
     }
+
     /**
      * Parses the mp4 file.
      **/
@@ -70,6 +72,7 @@ class MP4Parser {
             throw new IOException("Parse error: malformed mp4 file");
         }
     }
+
     /**
      * Close the file opened when creating the MP4Parser.
      **/
@@ -79,11 +82,15 @@ class MP4Parser {
         } catch (IOException ignore) {
         }
     }
+
     public long getBoxPos(String box) throws IOException {
         Long r = boxes.get(box);
-        if (r == null) throw new IOException("Box not found: " + box);
+        if (r == null) {
+            throw new IOException("Box not found: " + box);
+        }
         return boxes.get(box);
     }
+
     public StsdBox getStsdBox() throws IOException {
         try {
             return new StsdBox(file, getBoxPos("/moov/trak/mdia/minf/stbl/stsd"));
@@ -91,12 +98,14 @@ class MP4Parser {
             throw new IOException("stsd box could not be found");
         }
     }
+
     private void parse(String path, long len) throws IOException {
         byte[] buffer = new byte[8];
         String name = "";
         long sum = 0, newlen = 0;
-        if (!path.equals(""))
+        if (!path.equals("")) {
             boxes.put(path, pos - 8);
+        }
         while (sum < len) {
             file.read(buffer, 0, 8);
             sum += 8;
@@ -106,7 +115,9 @@ class MP4Parser {
                 newlen = byteBuffer.getInt() - 8;
                 // 1061109559+8 correspond to "????" in ASCII the HTC Desire S seems to write that sometimes, maybe other phones do
                 // "wide" atom would produce a newlen == 0, and we shouldn't throw an exception because of that
-                if (newlen < 0 || newlen == 1061109559) throw new IOException();
+                if (newlen < 0 || newlen == 1061109559) {
+                    throw new IOException();
+                }
                 name = new String(buffer, 4, 4);
                 Log.d(TAG, "Atom -> name: " + name + " newlen: " + newlen + " pos: " + pos);
                 sum += newlen;
@@ -127,11 +138,13 @@ class MP4Parser {
             }
         }
     }
+
     private boolean validBoxName(byte[] buffer) {
         for (int i = 0; i < 4; i++) {
             // If the next 4 bytes are neither lowercase letters nor numbers
-            if ((buffer[i + 4] < 'a' || buffer[i + 4] > 'z') && (buffer[i + 4] < '0' || buffer[i + 4] > '9'))
+            if ((buffer[i + 4] < 'a' || buffer[i + 4] > 'z') && (buffer[i + 4] < '0' || buffer[i + 4] > '9')) {
                 return false;
+            }
         }
         return true;
     }
@@ -226,9 +239,13 @@ class StsdBox {
         try {
             fis.seek(pos + 8);
             while (true) {
-                while (fis.read() != 'a') ;
+                while (fis.read() != 'a') {
+                    ;
+                }
                 fis.read(buffer, 0, 3);
-                if (buffer[0] == 'v' && buffer[1] == 'c' && buffer[2] == 'C') break;
+                if (buffer[0] == 'v' && buffer[1] == 'c' && buffer[2] == 'C') {
+                    break;
+                }
             }
         } catch (IOException e) {
             return false;

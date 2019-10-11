@@ -76,17 +76,19 @@ public class UriParser {
                 NameValuePair param = it.next();
                 // FLASH ON/OFF
                 if (param.getName().equalsIgnoreCase("flash")) {
-                    if (param.getValue().equalsIgnoreCase("on"))
+                    if (param.getValue().equalsIgnoreCase("on")) {
                         builder.setFlashEnabled(true);
-                    else
+                    } else {
                         builder.setFlashEnabled(false);
+                    }
                 }
                 // CAMERA -> the client can choose between the front facing camera and the back facing camera
                 else if (param.getName().equalsIgnoreCase("camera")) {
-                    if (param.getValue().equalsIgnoreCase("back"))
+                    if (param.getValue().equalsIgnoreCase("back")) {
                         builder.setCamera(CameraInfo.CAMERA_FACING_BACK);
-                    else if (param.getValue().equalsIgnoreCase("front"))
+                    } else if (param.getValue().equalsIgnoreCase("front")) {
                         builder.setCamera(CameraInfo.CAMERA_FACING_FRONT);
+                    }
                 }
                 // MULTICAST -> the stream will be sent to a multicast group
                 // The default mutlicast address is 228.5.6.7, but the client can specify another
@@ -138,7 +140,9 @@ public class UriParser {
                     if (param.getValue() != null) {
                         try {
                             int ttl = Integer.parseInt(param.getValue());
-                            if (ttl < 0) throw new IllegalStateException();
+                            if (ttl < 0) {
+                                throw new IllegalStateException();
+                            }
                             builder.setTimeToLive(ttl);
                         } catch (Exception e) {
                             throw new IllegalStateException("The TTL must be a positive integer !");

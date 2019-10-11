@@ -110,6 +110,7 @@ public class EncoderDebugger {
         mSize = width * height;
         reset();
     }
+
     public synchronized static void asyncDebug(final Context context, final int width, final int height) {
         new Thread(new Runnable() {
             @Override
@@ -122,39 +123,48 @@ public class EncoderDebugger {
             }
         }).start();
     }
+
     public synchronized static EncoderDebugger debug(Context context, int width, int height) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return debug(prefs, width, height);
     }
+
     public synchronized static EncoderDebugger debug(SharedPreferences prefs, int width, int height) {
         EncoderDebugger debugger = new EncoderDebugger(prefs, width, height);
         debugger.debug();
         return debugger;
     }
+
     public String getB64PPS() {
         return mB64PPS;
     }
+
     public String getB64SPS() {
         return mB64SPS;
     }
+
     public String getEncoderName() {
         return mEncoderName;
     }
+
     public int getEncoderColorFormat() {
         return mEncoderColorFormat;
     }
+
     /**
      * This {@link NV21Convertor} will do the necessary work to feed properly the encoder.
      */
     public NV21Convertor getNV21Convertor() {
         return mNV21;
     }
+
     /**
      * A log of all the errors that occured during the test.
      */
     public String getErrorLog() {
         return mErrorLog;
     }
+
     private void reset() {
         mNV21 = new NV21Convertor();
         mVideo = new byte[NB_ENCODED][];
@@ -185,7 +195,9 @@ public class EncoderDebugger {
             mB64SPS = mPreferences.getString(PREF_PREFIX + resolution + "sps", "");
             return;
         }
-        if (VERBOSE) Log.d(TAG, ">>>> Testing the phone for resolution " + mWidth + "x" + mHeight);
+        if (VERBOSE) {
+            Log.d(TAG, ">>>> Testing the phone for resolution " + mWidth + "x" + mHeight);
+        }
         // Builds a list of available encoders and decoders we may be able to use
         // because they support some nice color formats
         Codec[] encoders = CodecManager.findEncodersForMimeType(MIME_TYPE);
@@ -200,8 +212,9 @@ public class EncoderDebugger {
                 reset();
                 mEncoderName = encoders[i].name;
                 mEncoderColorFormat = encoders[i].formats[j];
-                if (VERBOSE)
+                if (VERBOSE) {
                     Log.v(TAG, ">> Test " + (n++) + "/" + count + ": " + mEncoderName + " with color format " + mEncoderColorFormat + " at " + mWidth + "x" + mHeight);
+                }
                 // Converts from NV21 to YUV420 with the specified parameters
                 mNV21.setSize(mWidth, mHeight);
                 mNV21.setSliceHeigth(mHeight);
@@ -215,8 +228,9 @@ public class EncoderDebugger {
                     // Starts the encoder
                     configureEncoder();
                     searchSPSandPPS();
-                    if (VERBOSE)
+                    if (VERBOSE) {
                         Log.v(TAG, "SPS and PPS in b64: SPS=" + mB64SPS + ", PPS=" + mB64PPS);
+                    }
                     // Feeds the encoder with an image repeatidly to produce some NAL units
                     encode();
                     // We now try to decode the NALs with decoders available on the phone
@@ -228,27 +242,31 @@ public class EncoderDebugger {
                             try {
                                 configureDecoder();
                             } catch (Exception e) {
-                                if (VERBOSE)
+                                if (VERBOSE) {
                                     Log.d(TAG, mDecoderName + " can't be used with " + mDecoderColorFormat + " at " + mWidth + "x" + mHeight);
+                                }
                                 releaseDecoder();
                                 break;
                             }
                             try {
                                 decode(true);
-                                if (VERBOSE)
+                                if (VERBOSE) {
                                     Log.d(TAG, mDecoderName + " successfully decoded the NALs (color format " + mDecoderColorFormat + ")");
+                                }
                                 decoded = true;
                             } catch (Exception e) {
-                                if (VERBOSE)
+                                if (VERBOSE) {
                                     Log.e(TAG, mDecoderName + " failed to decode the NALs");
+                                }
                                 e.printStackTrace();
                             } finally {
                                 releaseDecoder();
                             }
                         }
                     }
-                    if (!decoded)
+                    if (!decoded) {
                         throw new RuntimeException("Failed to decode NALs from the encoder.");
+                    }
                     // Compares the image before and after
                     if (!compareLumaPanes()) {
                         // TODO: try again with a different stride
@@ -258,7 +276,9 @@ public class EncoderDebugger {
                     int padding;
                     if ((padding = checkPaddingNeeded()) > 0) {
                         if (padding < 4096) {
-                            if (VERBOSE) Log.d(TAG, "Some padding is needed: " + padding);
+                            if (VERBOSE) {
+                                Log.d(TAG, "Some padding is needed: " + padding);
+                            }
                             mNV21.setYPadding(padding);
                             createTestImage();
                             mData = mNV21.convert(mInitialImage);
@@ -273,7 +293,9 @@ public class EncoderDebugger {
                     if (!compareChromaPanes(false)) {
                         if (compareChromaPanes(true)) {
                             mNV21.setColorPanesReversed(true);
-                            if (VERBOSE) Log.d(TAG, "U and V pane are reversed");
+                            if (VERBOSE) {
+                                Log.d(TAG, "U and V pane are reversed");
+                            }
                         } else {
                             throw new RuntimeException("Incorrect U or V pane...");
                         }
@@ -288,7 +310,9 @@ public class EncoderDebugger {
                     e.printStackTrace(pw);
                     String stack = sw.toString();
                     String str = "Encoder " + mEncoderName + " cannot be used with color format " + mEncoderColorFormat;
-                    if (VERBOSE) Log.e(TAG, str, e);
+                    if (VERBOSE) {
+                        Log.e(TAG, str, e);
+                    }
                     mErrorLog += str + "\n" + stack;
                     e.printStackTrace();
                 } finally {
@@ -306,7 +330,9 @@ public class EncoderDebugger {
     private boolean checkTestNeeded() {
         String resolution = mWidth + "x" + mHeight + "-";
         // Forces the test
-        if (DEBUG || mPreferences == null) return true;
+        if (DEBUG || mPreferences == null) {
+            return true;
+        }
         // If the sdk has changed on the phone, or the version of the test
         // it has to be run again
         if (mPreferences.contains(PREF_PREFIX + resolution + "lastSdk")) {
@@ -391,13 +417,19 @@ public class EncoderDebugger {
         for (int k = 0; k < NB_DECODED; k++) {
             if (mDecodedVideo[k] != null) {
                 i = 0;
-                while (i < j && (mDecodedVideo[k][j - i] & 0xFF) < 50) i += 2;
+                while (i < j && (mDecodedVideo[k][j - i] & 0xFF) < 50) {
+                    i += 2;
+                }
                 if (i > 0) {
                     r[k] = ((i >> 6) << 6);
                     max = r[k] > max ? r[k] : max;
-                    if (VERBOSE) Log.e(TAG, "Padding needed: " + r[k]);
+                    if (VERBOSE) {
+                        Log.e(TAG, "Padding needed: " + r[k]);
+                    }
                 } else {
-                    if (VERBOSE) Log.v(TAG, "No padding needed.");
+                    if (VERBOSE) {
+                        Log.v(TAG, "No padding needed.");
+                    }
                 }
             }
         }
@@ -451,11 +483,15 @@ public class EncoderDebugger {
             if (format != null) {
                 if (format.containsKey("slice-height")) {
                     sliceHeight = format.getInteger("slice-height");
-                    if (sliceHeight < mHeight) sliceHeight = mHeight;
+                    if (sliceHeight < mHeight) {
+                        sliceHeight = mHeight;
+                    }
                 }
                 if (format.containsKey("stride")) {
                     stride = format.getInteger("stride");
-                    if (stride < mWidth) stride = mWidth;
+                    if (stride < mWidth) {
+                        stride = mWidth;
+                    }
                 }
                 if (format.containsKey(MediaFormat.KEY_COLOR_FORMAT)) {
                     if (format.getInteger(MediaFormat.KEY_COLOR_FORMAT) > 0) {
@@ -476,18 +512,24 @@ public class EncoderDebugger {
                 break;
         }
         for (int i = 0; i < mSize; i++) {
-            if (i % mWidth == 0) i += stride - mWidth;
+            if (i % mWidth == 0) {
+                i += stride - mWidth;
+            }
             buffer[i] = mDecodedVideo[k][i];
         }
         if (!planar) {
             for (int i = 0, j = 0; j < mSize / 4; i += 1, j += 1) {
-                if (i % mWidth / 2 == 0) i += (stride - mWidth) / 2;
+                if (i % mWidth / 2 == 0) {
+                    i += (stride - mWidth) / 2;
+                }
                 buffer[mSize + 2 * j + 1] = mDecodedVideo[k][stride * sliceHeight + 2 * i];
                 buffer[mSize + 2 * j] = mDecodedVideo[k][stride * sliceHeight + 2 * i + 1];
             }
         } else {
             for (int i = 0, j = 0; j < mSize / 4; i += 1, j += 1) {
-                if (i % mWidth / 2 == 0) i += (stride - mWidth) / 2;
+                if (i % mWidth / 2 == 0) {
+                    i += (stride - mWidth) / 2;
+                }
                 buffer[mSize + 2 * j + 1] = mDecodedVideo[k][stride * sliceHeight + i];
                 buffer[mSize + 2 * j] = mDecodedVideo[k][stride * sliceHeight * 5 / 4 + i];
             }
@@ -547,7 +589,9 @@ public class EncoderDebugger {
             decInputBuffers[decInputIndex].put(mSPS);
             mDecoder.queueInputBuffer(decInputIndex, 0, decInputBuffers[decInputIndex].position(), timestamp(), 0);
         } else {
-            if (VERBOSE) Log.e(TAG, "No buffer available !");
+            if (VERBOSE) {
+                Log.e(TAG, "No buffer available !");
+            }
         }
         decInputIndex = mDecoder.dequeueInputBuffer(1000000 / FRAMERATE);
         if (decInputIndex >= 0) {
@@ -556,7 +600,9 @@ public class EncoderDebugger {
             decInputBuffers[decInputIndex].put(mPPS);
             mDecoder.queueInputBuffer(decInputIndex, 0, decInputBuffers[decInputIndex].position(), timestamp(), 0);
         } else {
-            if (VERBOSE) Log.e(TAG, "No buffer available !");
+            if (VERBOSE) {
+                Log.e(TAG, "No buffer available !");
+            }
         }
 
 
@@ -594,7 +640,9 @@ public class EncoderDebugger {
                 inputBuffers[bufferIndex].put(mData, 0, mData.length);
                 mEncoder.queueInputBuffer(bufferIndex, 0, mData.length, timestamp(), 0);
             } else {
-                if (VERBOSE) Log.e(TAG, "No buffer available !");
+                if (VERBOSE) {
+                    Log.e(TAG, "No buffer available !");
+                }
             }
             // We are looking for the SPS and the PPS here. As always, Android is very inconsistent, I have observed that some
             // encoders will give those parameters through the MediaFormat object (that is the normal behaviour).
@@ -623,9 +671,12 @@ public class EncoderDebugger {
                         // Parses the SPS and PPS, they could be in two different packets and in a different order
                         //depending on the phone so we don't make any assumption about that
                         while (p < len) {
-                            while (!(csd[p + 0] == 0 && csd[p + 1] == 0 && csd[p + 2] == 0 && csd[p + 3] == 1) && p + 3 < len)
+                            while (!(csd[p + 0] == 0 && csd[p + 1] == 0 && csd[p + 2] == 0 && csd[p + 3] == 1) && p + 3 < len) {
                                 p++;
-                            if (p + 3 >= len) p = len;
+                            }
+                            if (p + 3 >= len) {
+                                p = len;
+                            }
                             if ((csd[q] & 0x1F) == 7) {
                                 mSPS = new byte[p - q];
                                 System.arraycopy(csd, q, mSPS, 0, p - q);
@@ -664,7 +715,9 @@ public class EncoderDebugger {
                 encInputBuffers[encInputIndex].put(mData, 0, mData.length);
                 mEncoder.queueInputBuffer(encInputIndex, 0, mData.length, timestamp(), 0);
             } else {
-                if (VERBOSE) Log.d(TAG, "No buffer available !");
+                if (VERBOSE) {
+                    Log.d(TAG, "No buffer available !");
+                }
             }
             // Tries to get a NAL unit
             encOutputIndex = mEncoder.dequeueOutputBuffer(info, 1000000 / FRAMERATE);
@@ -719,7 +772,9 @@ public class EncoderDebugger {
                     mDecoder.queueInputBuffer(decInputIndex, 0, l2, timestamp(), 0);
                     i++;
                 } else {
-                    if (VERBOSE) Log.d(TAG, "No buffer available !");
+                    if (VERBOSE) {
+                        Log.d(TAG, "No buffer available !");
+                    }
                 }
             }
             // Tries to get a decoded image
@@ -739,8 +794,9 @@ public class EncoderDebugger {
                     convertToNV21(j);
                     if (j >= NB_DECODED - 1) {
                         flushMediaCodec(mDecoder);
-                        if (VERBOSE)
+                        if (VERBOSE) {
                             Log.v(TAG, "Decoding " + n + " frames took " + elapsed / 1000 + " ms");
+                        }
                         return elapsed;
                     }
                     j++;
@@ -760,10 +816,11 @@ public class EncoderDebugger {
      * @param withPrefix If set to true, the NAL will be preceeded with 0x00000001.
      */
     private boolean hasPrefix(byte[] nal) {
-        if (nal[0] == 0 && nal[1] == 0 && nal[2] == 0 && nal[3] == 0x01)
+        if (nal[0] == 0 && nal[1] == 0 && nal[2] == 0 && nal[3] == 0x01) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 
     private void encodeDecode() {
@@ -789,7 +846,9 @@ public class EncoderDebugger {
 
     private void check(boolean cond, String message) {
         if (!cond) {
-            if (VERBOSE) Log.e(TAG, message);
+            if (VERBOSE) {
+                Log.e(TAG, message);
+            }
             throw new IllegalStateException(message);
         }
     }

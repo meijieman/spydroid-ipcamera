@@ -94,72 +94,6 @@ public abstract class MediaStream implements Stream {
     }
 
     /**
-     * Sets the destination ip address of the stream.
-     *
-     * @param dest The destination address of the stream
-     */
-    public void setDestinationAddress(InetAddress dest) {
-        mDestination = dest;
-    }
-    /**
-     * Sets the destination ports of the stream.
-     *
-     * @param rtpPort  Destination port that will be used for RTP
-     * @param rtcpPort Destination port that will be used for RTCP
-     */
-    public void setDestinationPorts(int rtpPort, int rtcpPort) {
-        mRtpPort = rtpPort;
-        mRtcpPort = rtcpPort;
-    }
-    /**
-     * Sets the Time To Live of packets sent over the network.
-     *
-     * @param ttl The time to live
-     * @throws IOException
-     */
-    public void setTimeToLive(int ttl) throws IOException {
-        mTTL = ttl;
-    }
-    /**
-     * Returns a pair of destination ports, the first one is the
-     * one used for RTP and the second one is used for RTCP.
-     **/
-    public int[] getDestinationPorts() {
-        return new int[]{
-                mRtpPort,
-                mRtcpPort
-        };
-    }
-    /**
-     * Sets the destination ports of the stream.
-     * If an odd number is supplied for the destination port then the next
-     * lower even number will be used for RTP and it will be used for RTCP.
-     * If an even number is supplied, it will be used for RTP and the next odd
-     * number will be used for RTCP.
-     *
-     * @param dport The destination port
-     */
-    public void setDestinationPorts(int dport) {
-        if (dport % 2 == 1) {
-            mRtpPort = dport - 1;
-            mRtcpPort = dport;
-        } else {
-            mRtpPort = dport;
-            mRtcpPort = dport + 1;
-        }
-    }
-    /**
-     * Returns a pair of source ports, the first one is the
-     * one used for RTP and the second one is used for RTCP.
-     **/
-    public int[] getLocalPorts() {
-        return new int[]{
-                this.mPacketizer.getRtpSocket().getLocalPort(),
-                this.mPacketizer.getRtcpSocket().getLocalPort()
-        };
-    }
-
-    /**
      * Sets the streaming method that will be used.
      * <p>
      * If the mode is set to {@link #MODE_MEDIARECORDER_API}, raw audio/video will be encoded
@@ -187,29 +121,15 @@ public abstract class MediaStream implements Stream {
     }
 
     /**
-     * Returns an approximation of the bit rate consumed by the stream in bit per seconde.
-     */
-    public long getBitrate() {
-        return !mStreaming ? 0 : mPacketizer.getRtpSocket().getBitrate();
-    }
-
-    /**
-     * Indicates if the {@link MediaStream} is streaming.
-     *
-     * @return A boolean indicating if the {@link MediaStream} is streaming
-     */
-    public boolean isStreaming() {
-        return mStreaming;
-    }
-
-    /**
      * Configures the stream with the settings supplied with
      * {@link VideoStream#setVideoQuality(net.majorkernelpanic.streaming.video.VideoQuality)}
      * for a {@link VideoStream} and {@link AudioStream#setAudioQuality(net.majorkernelpanic.streaming.audio.AudioQuality)}
      * for a {@link AudioStream}.
      */
     public synchronized void configure() throws IllegalStateException, IOException {
-        if (mStreaming) throw new IllegalStateException("Can't be called while streaming.");
+        if (mStreaming) {
+            throw new IllegalStateException("Can't be called while streaming.");
+        }
         mMode = mRequestedMode;
         mConfigured = true;
     }
@@ -218,10 +138,12 @@ public abstract class MediaStream implements Stream {
      * Starts the stream.
      */
     public synchronized void start() throws IllegalStateException, IOException {
-        if (mDestination == null)
+        if (mDestination == null) {
             throw new IllegalStateException("No destination ip address set for the stream !");
-        if (mRtpPort <= 0 || mRtcpPort <= 0)
+        }
+        if (mRtpPort <= 0 || mRtcpPort <= 0) {
             throw new IllegalStateException("No destination ports set for the stream !");
+        }
         mPacketizer.setTimeToLive(mTTL);
         if (mMode != MODE_MEDIARECORDER_API) {
             encodeWithMediaCodec();
@@ -257,9 +179,92 @@ public abstract class MediaStream implements Stream {
         }
     }
 
-    protected abstract void encodeWithMediaRecorder() throws IOException;
+    /**
+     * Sets the Time To Live of packets sent over the network.
+     *
+     * @param ttl The time to live
+     * @throws IOException
+     */
+    public void setTimeToLive(int ttl) throws IOException {
+        mTTL = ttl;
+    }
 
-    protected abstract void encodeWithMediaCodec() throws IOException;
+    /**
+     * Sets the destination ip address of the stream.
+     *
+     * @param dest The destination address of the stream
+     */
+    public void setDestinationAddress(InetAddress dest) {
+        mDestination = dest;
+    }
+
+    /**
+     * Sets the destination ports of the stream.
+     *
+     * @param rtpPort  Destination port that will be used for RTP
+     * @param rtcpPort Destination port that will be used for RTCP
+     */
+    public void setDestinationPorts(int rtpPort, int rtcpPort) {
+        mRtpPort = rtpPort;
+        mRtcpPort = rtcpPort;
+    }
+
+    /**
+     * Returns a pair of source ports, the first one is the
+     * one used for RTP and the second one is used for RTCP.
+     **/
+    public int[] getLocalPorts() {
+        return new int[]{
+                this.mPacketizer.getRtpSocket().getLocalPort(),
+                this.mPacketizer.getRtcpSocket().getLocalPort()
+        };
+    }
+
+    /**
+     * Returns a pair of destination ports, the first one is the
+     * one used for RTP and the second one is used for RTCP.
+     **/
+    public int[] getDestinationPorts() {
+        return new int[]{
+                mRtpPort,
+                mRtcpPort
+        };
+    }
+
+    /**
+     * Sets the destination ports of the stream.
+     * If an odd number is supplied for the destination port then the next
+     * lower even number will be used for RTP and it will be used for RTCP.
+     * If an even number is supplied, it will be used for RTP and the next odd
+     * number will be used for RTCP.
+     *
+     * @param dport The destination port
+     */
+    public void setDestinationPorts(int dport) {
+        if (dport % 2 == 1) {
+            mRtpPort = dport - 1;
+            mRtcpPort = dport;
+        } else {
+            mRtpPort = dport;
+            mRtcpPort = dport + 1;
+        }
+    }
+
+    /**
+     * Returns the SSRC of the underlying {@link net.majorkernelpanic.streaming.rtp.RtpSocket}.
+     *
+     * @return the SSRC of the stream
+     */
+    public int getSSRC() {
+        return getPacketizer().getSSRC();
+    }
+
+    /**
+     * Returns an approximation of the bit rate consumed by the stream in bit per seconde.
+     */
+    public long getBitrate() {
+        return !mStreaming ? 0 : mPacketizer.getRtpSocket().getBitrate();
+    }
 
     /**
      * Returns a description of the stream using SDP.
@@ -270,13 +275,17 @@ public abstract class MediaStream implements Stream {
     public abstract String getSessionDescription();
 
     /**
-     * Returns the SSRC of the underlying {@link net.majorkernelpanic.streaming.rtp.RtpSocket}.
+     * Indicates if the {@link MediaStream} is streaming.
      *
-     * @return the SSRC of the stream
+     * @return A boolean indicating if the {@link MediaStream} is streaming
      */
-    public int getSSRC() {
-        return getPacketizer().getSSRC();
+    public boolean isStreaming() {
+        return mStreaming;
     }
+
+    protected abstract void encodeWithMediaRecorder() throws IOException;
+
+    protected abstract void encodeWithMediaCodec() throws IOException;
 
     protected void createSockets() throws IOException {
         final String LOCAL_ADDR = "net.majorkernelpanic.streaming-";

@@ -53,6 +53,12 @@ public class AMRNBStream extends AudioStream {
 
     }
 
+    public synchronized void configure() throws IllegalStateException, IOException {
+        super.configure();
+        mMode = MODE_MEDIARECORDER_API;
+        mQuality = mRequestedQuality.clone();
+    }
+
     /**
      * Starts the stream.
      */
@@ -61,12 +67,6 @@ public class AMRNBStream extends AudioStream {
         if (!mStreaming) {
             super.start();
         }
-    }
-
-    public synchronized void configure() throws IllegalStateException, IOException {
-        super.configure();
-        mMode = MODE_MEDIARECORDER_API;
-        mQuality = mRequestedQuality.clone();
     }
 
     /**

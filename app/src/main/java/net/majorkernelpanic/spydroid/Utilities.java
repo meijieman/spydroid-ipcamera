@@ -49,9 +49,9 @@ public class Utilities {
      * uses pattern matching to see if the given string could be a valid IP address.
      *
      * @param ipAddress A string that is to be examined to verify whether or not
-     *  it could be a valid IP address.
+     *                  it could be a valid IP address.
      * @return <code>true</code> if the string is a value that is a valid IP address,
-     *  <code>false</code> otherwise.
+     * <code>false</code> otherwise.
      */
     public static boolean isIpAddress(String ipAddress) {
         Matcher m1 = Utilities.VALID_IPV4_PATTERN.matcher(ipAddress);
@@ -75,6 +75,7 @@ public class Utilities {
 
     /**
      * Returns the IP address of the first configured interface of the device
+     *
      * @param removeIPv6 If true, IPv6 addresses are ignored
      * @return the IP address of the first configured interface or null
      */

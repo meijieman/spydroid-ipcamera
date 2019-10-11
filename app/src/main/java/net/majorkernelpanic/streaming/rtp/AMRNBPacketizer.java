@@ -114,7 +114,9 @@ public class AMRNBPacketizer extends AbstractPacketizer implements Runnable {
             len = is.read(buffer, offset + sum, length - sum);
             if (len < 0) {
                 throw new IOException("End of stream");
-            } else sum += len;
+            } else {
+                sum += len;
+            }
         }
         return sum;
     }

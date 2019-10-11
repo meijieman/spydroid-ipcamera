@@ -156,6 +156,7 @@ public class Session {
         } catch (InterruptedException e) {
         }
     }
+
     /**
      * You probably don't need to use that directly, use the {@link SessionBuilder}.
      */
@@ -205,6 +206,7 @@ public class Session {
     public VideoStream getVideoTrack() {
         return mVideoStream;
     }
+
     /**
      * The origin address of the session.
      * It appears in the sessionn description.
@@ -214,6 +216,7 @@ public class Session {
     public void setOrigin(String origin) {
         mOrigin = origin;
     }
+
     /**
      * Set the TTL of all packets sent during the session.
      * Changes will be taken into account the next time you start the session.
@@ -223,6 +226,7 @@ public class Session {
     public void setTimeToLive(int ttl) {
         mTimeToLive = ttl;
     }
+
     /**
      * Sets the configuration of the stream. You can call this method at any time
      * and changes will take effect next time you call {@link #configure()}.
@@ -234,6 +238,7 @@ public class Session {
             mVideoStream.setVideoQuality(quality);
         }
     }
+
     /**
      * Sets a Surface to show a preview of recorded media (video).
      * You can call this method at any time and changes will take effect next time you call {@link #start()} or {@link #startPreview()}.
@@ -248,6 +253,7 @@ public class Session {
             }
         });
     }
+
     /**
      * Sets the orientation of the preview. You can call this method at any time
      * and changes will take effect next time you call {@link #configure()}.
@@ -259,6 +265,7 @@ public class Session {
             mVideoStream.setPreviewOrientation(orientation);
         }
     }
+
     /**
      * Sets the configuration of the stream. You can call this method at any time
      * and changes will take effect next time you call {@link #configure()}.
@@ -270,6 +277,7 @@ public class Session {
             mAudioStream.setAudioQuality(quality);
         }
     }
+
     /**
      * Returns the {@link Callback} interface that was set with
      * {@link #setCallback(Callback)} or null if none was set.
@@ -277,6 +285,7 @@ public class Session {
     public Callback getCallback() {
         return mCallback;
     }
+
     /**
      * Sets the callback interface that will be called by the {@link Session}.
      *
@@ -285,6 +294,7 @@ public class Session {
     public void setCallback(Callback callback) {
         mCallback = callback;
     }
+
     /**
      * Returns a Session Description that can be stored in a file or sent to a client with RTSP.
      *
@@ -316,12 +326,14 @@ public class Session {
         }
         return sessionDescription.toString();
     }
+
     /**
      * Returns the destination set with {@link #setDestination(String)}.
      */
     public String getDestination() {
         return mDestination;
     }
+
     /**
      * The destination address for all the streams of the session.
      * Changes will be taken into account the next time you start the session.
@@ -331,13 +343,18 @@ public class Session {
     public void setDestination(String destination) {
         mDestination = destination;
     }
+
     /**
      * Returns an approximation of the bandwidth consumed by the session in bit per seconde.
      */
     public long getBitrate() {
         long sum = 0;
-        if (mAudioStream != null) sum += mAudioStream.getBitrate();
-        if (mVideoStream != null) sum += mVideoStream.getBitrate();
+        if (mAudioStream != null) {
+            sum += mAudioStream.getBitrate();
+        }
+        if (mVideoStream != null) {
+            sum += mVideoStream.getBitrate();
+        }
         return sum;
     }
 
@@ -345,10 +362,11 @@ public class Session {
      * Indicates if a track is currently running.
      */
     public boolean isStreaming() {
-        if ((mAudioStream != null && mAudioStream.isStreaming()) || (mVideoStream != null && mVideoStream.isStreaming()))
+        if ((mAudioStream != null && mAudioStream.isStreaming()) || (mVideoStream != null && mVideoStream.isStreaming())) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 
     /**
@@ -689,17 +707,21 @@ public class Session {
             }
         });
     }
+
     public boolean trackExists(int id) {
-        if (id == 0)
+        if (id == 0) {
             return mAudioStream != null;
-        else
+        } else {
             return mVideoStream != null;
+        }
     }
+
     public Stream getTrack(int id) {
-        if (id == 0)
+        if (id == 0) {
             return mAudioStream;
-        else
+        } else {
             return mVideoStream;
+        }
     }
 
     /**

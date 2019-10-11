@@ -94,6 +94,7 @@ public class CustomHttpServer extends TinyHttpServer {
                 SpydroidApplication.getInstance().lastCaughtException = e;
             }
         }
+
         @Override
         public void onMessage(TinyHttpServer server, int message) {
         }
@@ -109,13 +110,6 @@ public class CustomHttpServer extends TinyHttpServer {
         mHttpEnabled = true;
         mHttpsEnabled = false;
 
-    }
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        mDescriptionRequestHandler = new DescriptionRequestHandler();
-        addRequestHandler("/spydroid.sdp*", mDescriptionRequestHandler);
-        addRequestHandler("/request.json*", new CustomRequestHandler());
     }
 
     @Override
@@ -136,10 +130,20 @@ public class CustomHttpServer extends TinyHttpServer {
 
     }
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mDescriptionRequestHandler = new DescriptionRequestHandler();
+        addRequestHandler("/spydroid.sdp*", mDescriptionRequestHandler);
+        addRequestHandler("/request.json*", new CustomRequestHandler());
+    }
+
     public boolean isStreaming() {
         for (Session session : mSessions.keySet()) {
             if (session != null) {
-                if (session.isStreaming()) return true;
+                if (session.isStreaming()) {
+                    return true;
+                }
             }
         }
         return false;
@@ -149,7 +153,9 @@ public class CustomHttpServer extends TinyHttpServer {
         long bitrate = 0;
         for (Session session : mSessions.keySet()) {
             if (session != null) {
-                if (session.isStreaming()) bitrate += session.getBitrate();
+                if (session.isStreaming()) {
+                    bitrate += session.getBitrate();
+                }
             }
         }
         return bitrate;
@@ -197,6 +203,7 @@ public class CustomHttpServer extends TinyHttpServer {
                 mSessionList[i] = new SessionInfo();
             }
         }
+
         public synchronized void handle(HttpRequest request, HttpResponse response, HttpContext context) throws HttpException {
             Socket socket = ((TinyHttpServer.MHttpContext) context).getSocket();
             String uri = request.getRequestLine().getUri();
